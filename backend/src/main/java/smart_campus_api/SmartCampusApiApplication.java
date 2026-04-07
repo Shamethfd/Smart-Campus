@@ -3,7 +3,7 @@ package smart_campus_api;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"smart_campus_api", "com.smartcampus"})
 public class SmartCampusApiApplication {
 
 	public static void main(String[] args) {
