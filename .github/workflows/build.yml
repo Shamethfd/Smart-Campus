@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
       
       - name: Build with Maven
-        working-directory: smart-campus-api
+        working-directory: backend
         run: mvn clean install -DskipTests
 
   build-client:
