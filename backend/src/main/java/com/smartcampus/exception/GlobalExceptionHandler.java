@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,6 +15,20 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResourceFound(
+            NoResourceFoundException ex,
+            HttpServletRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("error", "Not found");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(
