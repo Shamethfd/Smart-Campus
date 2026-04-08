@@ -12,7 +12,7 @@ function App() {
         <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <Link to="/" className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-white shadow-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#094886] text-sm font-semibold text-white shadow-sm">
                 SC
               </div>
               <div className="flex flex-col">
@@ -27,7 +27,7 @@ function App() {
               {isAdmin && (
                 <Link
                   to="/admin"
-                  className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary/90"
+                  className="rounded-full bg-[#094886] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#094886]/90"
                 >
                   Admin
                 </Link>
@@ -93,7 +93,7 @@ function HomePage({ isAdmin }) {
     <div className="space-y-10">
       <section className="grid gap-10 lg:grid-cols-2 lg:items-center">
         <div className="space-y-5">
-          <span className="inline-flex items-center rounded-full bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+          <span className="inline-flex items-center rounded-full bg-[#094886]/5 px-3 py-1 text-xs font-medium text-[#094886]">
             Campus resource booking
           </span>
           <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
@@ -106,7 +106,7 @@ function HomePage({ isAdmin }) {
           <div className="flex flex-wrap gap-3 pt-1">
             <Link
               to="/book"
-              className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90"
+              className="inline-flex items-center justify-center rounded-full bg-[#094886] px-6 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#094886]/90"
             >
               Create booking
             </Link>
@@ -125,7 +125,7 @@ function HomePage({ isAdmin }) {
           <ol className="mt-4 space-y-3 text-sm">
             {flow.map((step, index) => (
               <li key={step} className="flex gap-3">
-                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-white">
+                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-[#2563EB] text-[10px] font-semibold text-white">
                   {index + 1}
                 </span>
                 <span className="text-slate-700">{step}</span>
@@ -152,7 +152,7 @@ function HomePage({ isAdmin }) {
               </div>
               <Link
                 to={card.to}
-                className="mt-4 inline-flex text-xs font-semibold text-secondary hover:text-secondary/80"
+                className="mt-4 inline-flex text-xs font-semibold text-[#2563EB] hover:text-[#2563EB]/80"
               >
                 {card.cta}
               </Link>

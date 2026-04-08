@@ -127,7 +127,7 @@ export default function UserDashboard() {
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-primary/5 px-2.5 py-1 text-[10px] font-semibold text-primary">
+                    <span className="rounded-full bg-[#094886]/5 px-2.5 py-1 text-[10px] font-semibold text-[#094886]">
                       Booking #{index + 1}
                     </span>
                     <span
@@ -168,8 +168,8 @@ export default function UserDashboard() {
                     value={booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'N/A'}
                   />
                   {booking.adminNotes && (
-                    <div className="rounded-md border border-primary/15 bg-primary/5 p-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">
+                    <div className="rounded-md border border-[#094886]/15 bg-[#094886]/5 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[#094886]">
                         Admin notes
                       </p>
                       <p className="mt-1 text-xs text-slate-700">{booking.adminNotes}</p>

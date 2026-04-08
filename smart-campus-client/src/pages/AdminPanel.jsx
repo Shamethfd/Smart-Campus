@@ -255,7 +255,7 @@ export default function AdminPanel() {
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows="4"
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
                 placeholder="Short explanation (optional)"
               />
             </div>

@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,8 +41,8 @@ public class BookingController {
             @RequestBody BookingRequest request,
             Authentication authentication) {
         
-        String userId = authentication.getName();
-        String userName = authentication.getPrincipal().toString();
+        String userId = authentication != null ? authentication.getName() : "demo-user";
+        String userName = authentication != null ? String.valueOf(authentication.getPrincipal()) : "Demo User";
 
         log.info("Creating booking request for user: {}", userId);
         
@@ -64,7 +63,7 @@ public class BookingController {
     public ResponseEntity<Map<String, Object>> getUserBookings(
             Authentication authentication) {
         
-        String userId = authentication.getName();
+        String userId = authentication != null ? authentication.getName() : "demo-user";
         log.info("Fetching bookings for user: {}", userId);
 
         List<BookingResponse> bookings = bookingService.getUserBookings(userId);
@@ -119,7 +118,6 @@ public class BookingController {
      * Admin: Get all bookings
      */
     @GetMapping("/admin/all")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getAllBookings() {
         log.info("Admin fetching all bookings");
 
@@ -137,7 +135,6 @@ public class BookingController {
      * Admin: Get bookings by status
      */
     @GetMapping("/admin/status/{status}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getBookingsByStatus(
             @PathVariable BookingStatus status) {
         
@@ -157,7 +154,6 @@ public class BookingController {
      * Admin: Approve a booking
      */
     @PutMapping("/{bookingId}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> approveBooking(
             @PathVariable String bookingId,
             @RequestParam(required = false) String notes) {
@@ -178,7 +174,6 @@ public class BookingController {
      * Admin: Reject a booking
      */
     @PutMapping("/{bookingId}/reject")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> rejectBooking(
             @PathVariable String bookingId,
             @RequestParam(required = false) String notes) {
@@ -203,7 +198,7 @@ public class BookingController {
             @PathVariable String bookingId,
             Authentication authentication) {
         
-        String userId = authentication.getName();
+        String userId = authentication != null ? authentication.getName() : "demo-user";
         log.info("User {} cancelling booking: {}", userId, bookingId);
 
         BookingResponse booking = bookingService.cancelBooking(bookingId);

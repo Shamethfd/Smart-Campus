@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import bookingAPI from '../services/bookingAPI';
 
 export default function BookingRequest() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     resourceId: '',
     resourceName: '',
@@ -37,6 +39,7 @@ export default function BookingRequest() {
         endTime: '',
         notes: '',
       });
+      navigate('/dashboard');
     } catch (error) {
       setMessage({
         type: 'error',
@@ -48,13 +51,13 @@ export default function BookingRequest() {
   };
 
   const inputClass =
-    'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20';
+    'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20';
 
   return (
     <section className="py-4">
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.3fr]">
         <aside className="rounded-lg border border-slate-200 bg-white p-5 text-xs shadow-sm">
-          <span className="inline-flex rounded-full bg-primary/5 px-3 py-1 text-[11px] font-semibold text-primary">
+          <span className="inline-flex rounded-full bg-[#094886]/5 px-3 py-1 text-[11px] font-semibold text-[#094886]">
             New booking
           </span>
           <h1 className="mt-3 text-base font-semibold text-slate-900">Book a resource</h1>
@@ -72,7 +75,7 @@ export default function BookingRequest() {
                 key={item}
                 className="flex items-start gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700"
               >
-                <span className="mt-[2px] flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-[9px] font-semibold text-white">
+                <span className="mt-[2px] flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-[9px] font-semibold text-white">
                   {idx + 1}
                 </span>
                 <span>{item}</span>
@@ -205,7 +208,7 @@ export default function BookingRequest() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex flex-1 items-center justify-center rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-slate-400"
+                className="inline-flex flex-1 items-center justify-center rounded-full bg-[#094886] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#094886]/90 disabled:cursor-not-allowed disabled:bg-slate-400"
               >
                 {loading ? 'Submitting...' : 'Submit Request'}
               </button>
