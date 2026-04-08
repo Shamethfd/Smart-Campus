@@ -34,6 +34,30 @@ public class BookingController {
     private final BookingService bookingService;
 
     /**
+     * Helpful index route (avoids "No static resource" for browser GET).
+     */
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> index() {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("success", true);
+        response.put("service", "smart-campus-api");
+        response.put("basePath", "/api/v1/bookings");
+        response.put("hint", "Use POST /api/v1/bookings to create a booking.");
+        response.put("endpoints", List.of(
+                "POST   /api/v1/bookings",
+                "GET    /api/v1/bookings/my-bookings",
+                "GET    /api/v1/bookings/{bookingId}",
+                "GET    /api/v1/bookings/resource/{resourceId}/date?date=YYYY-MM-DD",
+                "GET    /api/v1/bookings/admin/all",
+                "GET    /api/v1/bookings/admin/status/{status}",
+                "PUT    /api/v1/bookings/{bookingId}/approve?notes=...",
+                "PUT    /api/v1/bookings/{bookingId}/reject?notes=...",
+                "DELETE /api/v1/bookings/{bookingId}/cancel"
+        ));
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Create a new booking
      */
     @PostMapping

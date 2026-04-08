@@ -21,7 +21,7 @@ apiClient.interceptors.request.use((config) => {
 export const bookingAPI = {
   // Create a new booking
   createBooking: (bookingData) =>
-    apiClient.post('/', bookingData),
+    apiClient.post('', bookingData),
 
   // Get user's bookings
   getUserBookings: () =>
