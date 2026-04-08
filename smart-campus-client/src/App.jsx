@@ -1,142 +1,165 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { useState } from 'react';
-import './App.css';
 import BookingRequest from './pages/BookingRequest';
 import UserDashboard from './pages/UserDashboard';
 import AdminPanel from './pages/AdminPanel';
 
 function App() {
-  const [isAdmin] = useState(false); // TODO: Get this from authentication
+  const isAdmin = false;
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        {/* Navigation */}
-        <nav className="bg-white shadow-lg sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex justify-between items-center">
-              <Link to="/" className="text-2xl font-bold text-indigo-600">
-                Smart Campus
-              </Link>
-              <div className="flex gap-4">
-                <Link
-                  to="/book"
-                  className="px-4 py-2 text-gray-700 hover:text-indigo-600 font-semibold transition duration-200"
-                >
-                  Book Resource
-                </Link>
-                <Link
-                  to="/dashboard"
-                  className="px-4 py-2 text-gray-700 hover:text-indigo-600 font-semibold transition duration-200"
-                >
-                  My Bookings
-                </Link>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition duration-200"
-                  >
-                    Admin Panel
-                  </Link>
-                )}
+      <div className="min-h-full bg-slate-50 text-slate-900">
+        <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-white shadow-sm">
+                SC
               </div>
-            </div>
-          </div>
-        </nav>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-slate-900">Smart Campus</span>
+                <span className="text-xs text-slate-500">Resource booking</span>
+              </div>
+            </Link>
 
-        {/* Routes */}
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/book" element={<BookingRequest />} />
-          <Route path="/dashboard" element={<UserDashboard />} />
-          <Route path="/admin" element={<AdminPanel />} />
-        </Routes>
+            <nav className="flex items-center gap-2 text-sm">
+              <NavLink to="/book" label="Book" />
+              <NavLink to="/dashboard" label="Dashboard" />
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary/90"
+                >
+                  Admin
+                </Link>
+              )}
+            </nav>
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <Routes>
+            <Route path="/" element={<HomePage isAdmin={isAdmin} />} />
+            <Route path="/book" element={<BookingRequest />} />
+            <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/admin" element={<AdminPanel />} />
+          </Routes>
+        </main>
       </div>
     </Router>
   );
 }
 
-function HomePage() {
+function NavLink({ to, label }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-5xl font-bold text-gray-900 mb-6">
-          Smart Campus Booking System
-        </h1>
-        <p className="text-xl text-gray-700 mb-12">
-          Manage your resource bookings efficiently
-        </p>
+    <Link
+      to={to}
+      className="rounded-full px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+    >
+      {label}
+    </Link>
+  );
+}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="text-4xl mb-4">📅</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Book a Resource</h2>
-            <p className="text-gray-600 mb-6">
-              Select from available rooms, labs, and equipment for your preferred date and time
-            </p>
+function HomePage({ isAdmin }) {
+  const cards = [
+    {
+      title: 'Book Resource',
+      text: 'Create requests for rooms, labs, and equipment with date and time slots.',
+      cta: 'Start Booking',
+      to: '/book',
+    },
+    {
+      title: 'Track Requests',
+      text: 'Check status updates from pending to approved or rejected in one place.',
+      cta: 'View Dashboard',
+      to: '/dashboard',
+    },
+    {
+      title: 'Admin Actions',
+      text: 'Review requests quickly and manage approvals with clear status controls.',
+      cta: isAdmin ? 'Open Admin' : 'Admin View',
+      to: isAdmin ? '/admin' : '/dashboard',
+    },
+  ];
+
+  const flow = [
+    'Submit booking request',
+    'Status becomes pending',
+    'Admin approves or rejects',
+    'Approved booking can be cancelled',
+  ];
+
+  return (
+    <div className="space-y-10">
+      <section className="grid gap-10 lg:grid-cols-2 lg:items-center">
+        <div className="space-y-5">
+          <span className="inline-flex items-center rounded-full bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+            Campus resource booking
+          </span>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+            A clear way to request and manage campus resources.
+          </h1>
+          <p className="max-w-xl text-sm leading-relaxed text-slate-600">
+            Submit booking requests, track statuses, and keep admins and users aligned on what is reserved and when.
+          </p>
+
+          <div className="flex flex-wrap gap-3 pt-1">
             <Link
               to="/book"
-              className="inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition duration-200"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90"
             >
-              Start Booking
+              Create booking
             </Link>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="text-4xl mb-4">📋</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">View Bookings</h2>
-            <p className="text-gray-600 mb-6">
-              Check your booking history, status, and manage your active bookings
-            </p>
             <Link
               to="/dashboard"
-              className="inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition duration-200"
+              className="inline-flex items-center justify-center rounded-full border border-slate-300 px-6 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
             >
-              View Dashboard
+              View my bookings
             </Link>
           </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="text-4xl mb-4">⚙️</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Admin Control</h2>
-            <p className="text-gray-600 mb-6">
-              Review pending requests and manage all bookings in the system
-            </p>
-            <button
-              disabled
-              className="inline-block px-6 py-3 bg-gray-400 text-white font-semibold rounded-lg cursor-not-allowed"
-            >
-              Admin Panel
-            </button>
-          </div>
         </div>
 
-        <div className="mt-16 bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600 mb-2">1</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Request</h3>
-              <p className="text-gray-600 text-sm">Submit a booking request for your desired resource</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600 mb-2">2</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Pending Review</h3>
-              <p className="text-gray-600 text-sm">Admin reviews your booking request</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600 mb-2">3</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Approval</h3>
-              <p className="text-gray-600 text-sm">Admin approves or rejects your request</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600 mb-2">4</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Confirmed</h3>
-              <p className="text-gray-600 text-sm">Your booking is confirmed and ready to use</p>
-            </div>
-          </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-card">
+          <h2 className="text-sm font-semibold text-slate-900">How it works</h2>
+          <p className="mt-2 text-xs text-slate-500">Typical flow for any booking.</p>
+          <ol className="mt-4 space-y-3 text-sm">
+            {flow.map((step, index) => (
+              <li key={step} className="flex gap-3">
+                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-white">
+                  {index + 1}
+                </span>
+                <span className="text-slate-700">{step}</span>
+              </li>
+            ))}
+          </ol>
         </div>
-      </div>
+      </section>
+
+      <section className="space-y-4">
+        <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900">Quick access</h2>
+            <p className="text-xs text-slate-500">Jump directly into the main areas of the system.</p>
+          </div>
+        </header>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {cards.map((card) => (
+            <article key={card.title} className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">{card.title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">{card.text}</p>
+              </div>
+              <Link
+                to={card.to}
+                className="mt-4 inline-flex text-xs font-semibold text-secondary hover:text-secondary/80"
+              >
+                {card.cta}
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

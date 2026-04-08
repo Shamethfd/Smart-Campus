@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import bookingAPI from '../services/bookingAPI';
 
-const statusColors = {
-  PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  APPROVED: 'bg-green-100 text-green-800 border-green-300',
-  REJECTED: 'bg-red-100 text-red-800 border-red-300',
-  CANCELLED: 'bg-gray-100 text-gray-800 border-gray-300',
+const statusCardStyles = {
+  PENDING: 'border-amber-200 bg-amber-50',
+  APPROVED: 'border-emerald-200 bg-emerald-50',
+  REJECTED: 'border-rose-200 bg-rose-50',
+  CANCELLED: 'border-slate-200 bg-slate-100',
 };
 
-const statusBadgeClasses = {
-  PENDING: 'bg-yellow-200 text-yellow-900',
-  APPROVED: 'bg-green-200 text-green-900',
-  REJECTED: 'bg-red-200 text-red-900',
-  CANCELLED: 'bg-gray-200 text-gray-900',
+const statusBadgeStyles = {
+  PENDING: 'border-amber-200 bg-amber-100 text-amber-800',
+  APPROVED: 'border-emerald-200 bg-emerald-100 text-emerald-800',
+  REJECTED: 'border-rose-200 bg-rose-100 text-rose-800',
+  CANCELLED: 'border-slate-200 bg-slate-200 text-slate-700',
 };
 
 export default function UserDashboard() {
@@ -20,7 +20,6 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
-  const [selectedBookingId, setSelectedBookingId] = useState(null);
 
   useEffect(() => {
     fetchUserBookings();
@@ -44,10 +43,10 @@ export default function UserDashboard() {
     if (window.confirm('Are you sure you want to cancel this booking?')) {
       try {
         await bookingAPI.cancelBooking(bookingId);
-        setMessage({ type: 'success', text: 'Booking cancelled successfully' });
+        setMessage({ type: 'success', text: 'Booking cancelled successfully.' });
         await fetchUserBookings();
       } catch (err) {
-        setMessage({ type: 'error', text: 'Failed to cancel booking' });
+        setMessage({ type: 'error', text: 'Failed to cancel booking.' });
         console.error(err);
       }
     }
@@ -65,154 +64,166 @@ export default function UserDashboard() {
     return timeString || 'N/A';
   };
 
+  const stats = {
+    total: bookings.length,
+    pending: bookings.filter((booking) => booking.status === 'PENDING').length,
+    approved: bookings.filter((booking) => booking.status === 'APPROVED').length,
+    cancelled: bookings.filter((booking) => booking.status === 'CANCELLED').length,
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center">
-            <p className="text-lg text-gray-600">Loading your bookings...</p>
-          </div>
+      <section className="py-6">
+        <div className="flex items-center justify-center rounded-lg border border-slate-200 bg-white p-8 text-sm text-slate-700 shadow-sm">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-secondary/30 border-t-secondary mr-3" />
+          Loading your bookings…
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Bookings</h1>
-          <p className="text-gray-600">
-            View and manage your resource bookings
-          </p>
+    <section className="space-y-6">
+      <header className="flex flex-col gap-2 border-b border-slate-200 pb-4">
+        <h1 className="text-xl font-semibold text-slate-900">My bookings</h1>
+        <p className="text-xs text-slate-500">Track every request you have submitted.</p>
+        <div className="mt-3 grid gap-3 text-xs sm:grid-cols-4">
+          <StatTile label="Total" value={stats.total} />
+          <StatTile label="Pending" value={stats.pending} />
+          <StatTile label="Approved" value={stats.approved} />
+          <StatTile label="Cancelled" value={stats.cancelled} />
         </div>
+      </header>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">
-            {error}
-          </div>
-        )}
+      {error && (
+        <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">
+          {error}
+        </div>
+      )}
 
-        {message.text && (
-          <div
-            className={`mb-6 p-4 rounded-lg ${
-              message.type === 'success'
-                ? 'bg-green-50 border border-green-200 text-green-800'
-                : 'bg-red-50 border border-red-200 text-red-800'
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
+      {message.text && (
+        <div
+          className={`rounded-md border px-3 py-2 text-xs ${
+            message.type === 'success'
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+              : 'border-rose-200 bg-rose-50 text-rose-800'
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
 
-        {bookings.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-lg p-12 text-center">
-            <p className="text-gray-600 text-lg">No bookings found</p>
-            <p className="text-gray-500 mt-2">
-              Start by creating a new booking request
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6">
-            {bookings.map((booking) => (
-              <div
-                key={booking.id}
-                className={`bg-white rounded-lg shadow-lg p-6 border-l-4 ${
-                  statusColors[booking.status]?.split(' ')[0] || 'border-gray-300'
-                }`}
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Left Column */}
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-2xl font-bold text-gray-900">
-                        {booking.resourceName}
-                      </h3>
-                      <p className="text-gray-600">
-                        {booking.resourceType}
-                        {booking.resourceId && ` (${booking.resourceId})`}
-                      </p>
-                    </div>
+      {bookings.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+          No bookings yet. Create your first booking from the booking page.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {bookings.map((booking, index) => (
+            <article
+              key={booking.id}
+              className={`rounded-lg border bg-white p-5 text-sm shadow-sm ${statusCardStyles[booking.status] || statusCardStyles.CANCELLED}`}
+            >
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-primary/5 px-2.5 py-1 text-[10px] font-semibold text-primary">
+                      Booking #{index + 1}
+                    </span>
+                    <span
+                      className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${statusBadgeStyles[booking.status] || statusBadgeStyles.CANCELLED}`}
+                    >
+                      {booking.status}
+                    </span>
+                  </div>
+                  <h2 className="text-sm font-semibold text-slate-900">
+                    {booking.resourceName}
+                  </h2>
+                  <p className="text-xs text-slate-600">
+                    {booking.resourceType}
+                    {booking.resourceId ? ` · ${booking.resourceId}` : ''}
+                  </p>
 
-                    <div className="space-y-2 text-sm">
-                      <div>
-                        <span className="font-semibold text-gray-700">Date:</span>
-                        <span className="text-gray-600 ml-2">
-                          {formatDate(booking.bookingDate)}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-semibold text-gray-700">Time:</span>
-                        <span className="text-gray-600 ml-2">
-                          {formatTime(booking.startTime)} -{' '}
-                          {formatTime(booking.endTime)}
-                        </span>
-                      </div>
-                      {booking.notes && (
-                        <div>
-                          <span className="font-semibold text-gray-700">Notes:</span>
-                          <p className="text-gray-600 mt-1">{booking.notes}</p>
-                        </div>
-                      )}
-                    </div>
+                  <div className="mt-3 grid gap-3 text-xs sm:grid-cols-2">
+                    <InfoItem label="Date" value={formatDate(booking.bookingDate)} />
+                    <InfoItem
+                      label="Time"
+                      value={`${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`}
+                    />
                   </div>
 
-                  {/* Right Column */}
-                  <div className="flex flex-col justify-between">
-                    <div>
-                      <div className="mb-4">
-                        <span
-                          className={`inline-block px-4 py-2 rounded-full font-semibold text-sm ${
-                            statusBadgeClasses[booking.status]
-                          }`}
-                        >
-                          {booking.status}
-                        </span>
-                      </div>
-
-                      {booking.adminNotes && (
-                        <div className="mb-4">
-                          <p className="text-sm font-semibold text-gray-700">
-                            Admin Notes:
-                          </p>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {booking.adminNotes}
-                          </p>
-                        </div>
-                      )}
-
-                      <p className="text-xs text-gray-500 mt-2">
-                        Requested on:{' '}
-                        {new Date(booking.createdAt).toLocaleDateString()}
+                  {booking.notes && (
+                    <div className="mt-3 rounded-md border border-slate-200 bg-white/70 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                        Notes
                       </p>
+                      <p className="mt-1 text-xs text-slate-700">{booking.notes}</p>
                     </div>
+                  )}
+                </div>
 
-                    {/* Actions */}
-                    <div className="flex gap-3 mt-4">
-                      {booking.status === 'APPROVED' && (
-                        <button
-                          onClick={() => handleCancelBooking(booking.id)}
-                          className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg transition duration-200"
-                        >
-                          Cancel Booking
-                        </button>
-                      )}
-                      {booking.status === 'PENDING' && (
-                        <button
-                          disabled
-                          className="flex-1 bg-gray-300 text-gray-600 font-semibold py-2 rounded-lg cursor-not-allowed"
-                        >
-                          Awaiting Approval
-                        </button>
-                      )}
+                <div className="w-full max-w-xs space-y-3">
+                  <InfoItem
+                    label="Requested on"
+                    value={booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'N/A'}
+                  />
+                  {booking.adminNotes && (
+                    <div className="rounded-md border border-primary/15 bg-primary/5 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">
+                        Admin notes
+                      </p>
+                      <p className="mt-1 text-xs text-slate-700">{booking.adminNotes}</p>
                     </div>
+                  )}
+
+                  <div>
+                    {booking.status === 'APPROVED' ? (
+                      <button
+                        onClick={() => handleCancelBooking(booking.id)}
+                        className="inline-flex w-full items-center justify-center rounded-full bg-rose-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-rose-700"
+                      >
+                        Cancel booking
+                      </button>
+                    ) : booking.status === 'PENDING' ? (
+                      <button
+                        disabled
+                        className="inline-flex w-full cursor-not-allowed items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs font-semibold text-amber-800"
+                      >
+                        Awaiting approval
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        className="inline-flex w-full cursor-not-allowed items-center justify-center rounded-full border border-slate-300 bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-600"
+                      >
+                        No action available
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function StatTile({ label, value }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white px-3 py-2 shadow-sm">
+      <p className="text-[11px] text-slate-500">{label}</p>
+      <p className="mt-1 text-base font-semibold text-slate-900">{value}</p>
+    </div>
+  );
+}
+
+function InfoItem({ label, value }) {
+  return (
+    <div>
+      <p className="text-[11px] text-slate-500">{label}</p>
+      <p className="mt-0.5 text-xs font-semibold text-slate-900">{value}</p>
     </div>
   );
 }

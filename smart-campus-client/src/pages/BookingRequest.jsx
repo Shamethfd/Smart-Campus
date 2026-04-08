@@ -17,10 +17,7 @@ export default function BookingRequest() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -29,12 +26,8 @@ export default function BookingRequest() {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await bookingAPI.createBooking(formData);
-      setMessage({
-        type: 'success',
-        text: 'Booking request submitted successfully!',
-      });
-      // Reset form
+      await bookingAPI.createBooking(formData);
+      setMessage({ type: 'success', text: 'Booking request submitted successfully.' });
       setFormData({
         resourceId: '',
         resourceName: '',
@@ -47,46 +40,71 @@ export default function BookingRequest() {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: error.response?.data?.message || 'Failed to create booking',
+        text: error.response?.data?.message || 'Failed to create booking request.',
       });
     } finally {
       setLoading(false);
     }
   };
 
+  const inputClass =
+    'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Book a Resource</h1>
-          <p className="text-gray-600 mb-8">
-            Select a resource and choose your preferred date and time
+    <section className="py-4">
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.3fr]">
+        <aside className="rounded-lg border border-slate-200 bg-white p-5 text-xs shadow-sm">
+          <span className="inline-flex rounded-full bg-primary/5 px-3 py-1 text-[11px] font-semibold text-primary">
+            New booking
+          </span>
+          <h1 className="mt-3 text-base font-semibold text-slate-900">Book a resource</h1>
+          <p className="mt-2 text-xs leading-relaxed text-slate-600">
+            Provide the resource, date, and time slot. Your request will be reviewed before it is confirmed.
           </p>
 
+          <div className="mt-4 space-y-2">
+            {[
+              'Select the resource type and identifier.',
+              'Choose the date and start/end time.',
+              'Submit the request for admin approval.',
+            ].map((item, idx) => (
+              <div
+                key={item}
+                className="flex items-start gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700"
+              >
+                <span className="mt-[2px] flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-[9px] font-semibold text-white">
+                  {idx + 1}
+                </span>
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-5 text-xs shadow-sm">
           {message.text && (
             <div
-              className={`mb-6 p-4 rounded-lg ${
+              className={`mb-6 rounded-xl border px-4 py-3 text-sm font-medium ${
                 message.type === 'success'
-                  ? 'bg-green-50 border border-green-200 text-green-800'
-                  : 'bg-red-50 border border-red-200 text-red-800'
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                  : 'border-rose-200 bg-rose-50 text-rose-800'
               }`}
             >
               {message.text}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Resource Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Resource Type *
+                <label className="mb-1 block text-[11px] font-semibold text-slate-700">
+                  Resource type
                 </label>
                 <select
                   name="resourceType"
                   value={formData.resourceType}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className={inputClass}
                 >
                   <option value="ROOM">Room</option>
                   <option value="LAB">Lab</option>
@@ -95,41 +113,39 @@ export default function BookingRequest() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Resource ID *
+                <label className="mb-1 block text-[11px] font-semibold text-slate-700">
+                  Resource ID
                 </label>
                 <input
                   type="text"
                   name="resourceId"
                   value={formData.resourceId}
                   onChange={handleInputChange}
-                  placeholder="e.g., R-101"
+                  placeholder="R-101"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className={inputClass}
                 />
               </div>
             </div>
 
-            {/* Resource Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Resource Name *
+              <label className="mb-1 block text-[11px] font-semibold text-slate-700">
+                Resource name
               </label>
               <input
                 type="text"
                 name="resourceName"
                 value={formData.resourceName}
                 onChange={handleInputChange}
-                placeholder="e.g., Conference Room A"
+                placeholder="Conference Room A"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={inputClass}
               />
             </div>
 
-            {/* Date Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Booking Date *
+              <label className="mb-1 block text-[11px] font-semibold text-slate-700">
+                Booking date
               </label>
               <input
                 type="date"
@@ -137,15 +153,14 @@ export default function BookingRequest() {
                 value={formData.bookingDate}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={inputClass}
               />
             </div>
 
-            {/* Time Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Start Time *
+                <label className="mb-1 block text-[11px] font-semibold text-slate-700">
+                  Start time
                 </label>
                 <input
                   type="time"
@@ -153,13 +168,13 @@ export default function BookingRequest() {
                   value={formData.startTime}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  End Time *
+                <label className="mb-1 block text-[11px] font-semibold text-slate-700">
+                  End time
                 </label>
                 <input
                   type="time"
@@ -167,38 +182,47 @@ export default function BookingRequest() {
                   value={formData.endTime}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className={inputClass}
                 />
               </div>
             </div>
 
-            {/* Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Notes (Optional)
+              <label className="mb-1 block text-[11px] font-semibold text-slate-700">
+                Notes
               </label>
               <textarea
                 name="notes"
                 value={formData.notes}
                 onChange={handleInputChange}
-                placeholder="Add any additional information..."
                 rows="4"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              ></textarea>
+                placeholder="Additional information (optional)"
+                className={inputClass}
+              />
             </div>
 
-            {/* Submit Button */}
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-2 pt-1 sm:flex-row">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition duration-200"
+                className="inline-flex flex-1 items-center justify-center rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-slate-400"
               >
-                {loading ? 'Submitting...' : 'Submit Booking Request'}
+                {loading ? 'Submitting...' : 'Submit Request'}
               </button>
               <button
-                type="reset"
-                className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition duration-200"
+                type="button"
+                onClick={() =>
+                  setFormData({
+                    resourceId: '',
+                    resourceName: '',
+                    resourceType: 'ROOM',
+                    bookingDate: '',
+                    startTime: '',
+                    endTime: '',
+                    notes: '',
+                  })
+                }
+                className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
               >
                 Clear
               </button>
@@ -206,6 +230,6 @@ export default function BookingRequest() {
           </form>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
