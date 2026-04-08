@@ -4,10 +4,24 @@ import bookingAPI from '../services/bookingAPI';
 const STATUSES = ['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'];
 
 const badgeStyles = {
-  PENDING: 'border-amber-200 bg-amber-50 text-amber-800',
-  APPROVED: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-  REJECTED: 'border-rose-200 bg-rose-50 text-rose-800',
-  CANCELLED: 'border-slate-200 bg-slate-100 text-slate-700',
+  PENDING: 'border-amber-300 bg-amber-50 text-amber-800',
+  APPROVED: 'border-emerald-300 bg-emerald-50 text-emerald-800',
+  REJECTED: 'border-rose-300 bg-rose-50 text-rose-800',
+  CANCELLED: 'border-slate-200 bg-slate-100 text-slate-600',
+};
+
+const statCardStyles = {
+  total: 'bg-[#094886] border-[#094886]',
+  pending: 'bg-amber-50 border-amber-200',
+  approved: 'bg-emerald-50 border-emerald-200',
+  rejected: 'bg-rose-50 border-rose-200',
+};
+
+const statTextStyles = {
+  total: 'text-white',
+  pending: 'text-amber-800',
+  approved: 'text-emerald-800',
+  rejected: 'text-rose-800',
 };
 
 export default function AdminPanel() {
@@ -86,16 +100,16 @@ export default function AdminPanel() {
 
   const stats = {
     total: bookings.length,
-    pending: bookings.filter((booking) => booking.status === 'PENDING').length,
-    approved: bookings.filter((booking) => booking.status === 'APPROVED').length,
-    rejected: bookings.filter((booking) => booking.status === 'REJECTED').length,
+    pending: bookings.filter((b) => b.status === 'PENDING').length,
+    approved: bookings.filter((b) => b.status === 'APPROVED').length,
+    rejected: bookings.filter((b) => b.status === 'REJECTED').length,
   };
 
   if (loading) {
     return (
       <section className="py-6">
-        <div className="flex items-center justify-center rounded-lg border border-slate-200 bg-white p-8 text-sm text-slate-700 shadow-sm">
-          <div className="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-secondary/30 border-t-secondary" />
+        <div className="flex items-center justify-center rounded-lg border border-[#094886]/20 bg-white p-8 text-sm text-slate-700 shadow-sm">
+          <div className="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-[#094886]/30 border-t-[#094886]" />
           Loading bookings…
         </div>
       </section>
@@ -104,19 +118,43 @@ export default function AdminPanel() {
 
   return (
     <section className="space-y-6">
-      <header className="flex flex-col gap-2 border-b border-slate-200 pb-4">
-        <h1 className="text-xl font-semibold text-slate-900">Admin dashboard</h1>
+      {/* Header */}
+      <header className="flex flex-col gap-2 border-b border-[#094886]/20 pb-4">
+        <h1 className="text-xl font-semibold text-[#094886]">Admin dashboard</h1>
         <p className="text-xs text-slate-500">
           Review incoming booking requests and keep resource usage under control.
         </p>
+
+        {/* Stats */}
         <div className="mt-3 grid gap-3 text-xs sm:grid-cols-4">
-          <AdminStat label="Total" value={stats.total} />
-          <AdminStat label="Pending" value={stats.pending} />
-          <AdminStat label="Approved" value={stats.approved} />
-          <AdminStat label="Rejected" value={stats.rejected} />
+          <AdminStat
+            label="Total"
+            value={stats.total}
+            cardStyle={statCardStyles.total}
+            textStyle={statTextStyles.total}
+          />
+          <AdminStat
+            label="Pending"
+            value={stats.pending}
+            cardStyle={statCardStyles.pending}
+            textStyle={statTextStyles.pending}
+          />
+          <AdminStat
+            label="Approved"
+            value={stats.approved}
+            cardStyle={statCardStyles.approved}
+            textStyle={statTextStyles.approved}
+          />
+          <AdminStat
+            label="Rejected"
+            value={stats.rejected}
+            cardStyle={statCardStyles.rejected}
+            textStyle={statTextStyles.rejected}
+          />
         </div>
       </header>
 
+      {/* Alert messages */}
       {message.text && (
         <div
           className={`rounded-md border px-3 py-2 text-xs ${
@@ -135,16 +173,17 @@ export default function AdminPanel() {
         </div>
       )}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 text-xs shadow-sm">
+      {/* Filter bar */}
+      <div className="rounded-lg border border-[#094886]/15 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap gap-2">
           {STATUSES.map((status) => (
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`rounded-full px-3 py-1.5 text-[11px] font-semibold ${
+              className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors ${
                 filter === status
-                  ? 'bg-primary text-white'
-                  : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
+                  ? 'bg-[#094886] text-white'
+                  : 'border border-slate-300 bg-white text-slate-600 hover:border-[#094886]/40 hover:bg-[#094886]/5 hover:text-[#094886]'
               }`}
             >
               {status}
@@ -153,52 +192,43 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white text-xs shadow-sm">
+      {/* Table */}
+      <div className="overflow-hidden rounded-lg border border-[#094886]/15 bg-white shadow-sm">
         {filteredBookings.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
+          <div className="p-8 text-center text-sm text-slate-500">
             No bookings for the selected filter.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
+            <table className="min-w-full divide-y divide-slate-100 text-xs">
+              <thead className="bg-[#094886]/5">
                 <tr>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-600">
-                    User
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-600">
-                    Resource
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-600">
-                    Date
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-600">
-                    Time
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-600">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-600">
-                    Actions
-                  </th>
+                  {['User', 'Resource', 'Date', 'Time', 'Status', 'Actions'].map((col) => (
+                    <th
+                      key={col}
+                      className="px-4 py-3 text-left text-[11px] font-semibold text-[#094886]"
+                    >
+                      {col}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredBookings.map((booking) => (
-                  <tr key={booking.id} className="hover:bg-slate-50">
+                  <tr key={booking.id} className="hover:bg-[#094886]/[0.03]">
                     <td className="px-4 py-3 align-top">
                       <p className="font-semibold text-slate-900">{booking.userName}</p>
-                      <p className="text-[11px] text-slate-500">{booking.userId}</p>
+                      <p className="text-[11px] text-slate-400">{booking.userId}</p>
                     </td>
                     <td className="px-4 py-3 align-top">
                       <p className="font-semibold text-slate-900">{booking.resourceName}</p>
-                      <p className="text-[11px] text-slate-500">{booking.resourceType}</p>
+                      <p className="text-[11px] text-slate-400">{booking.resourceType}</p>
                     </td>
-                    <td className="px-4 py-3 align-top text-slate-800">
+                    <td className="px-4 py-3 align-top text-slate-700">
                       {formatDate(booking.bookingDate)}
                     </td>
-                    <td className="px-4 py-3 align-top text-slate-800">
-                      {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+                    <td className="px-4 py-3 align-top text-slate-700">
+                      {formatTime(booking.startTime)} – {formatTime(booking.endTime)}
                     </td>
                     <td className="px-4 py-3 align-top">
                       <span
@@ -213,20 +243,24 @@ export default function AdminPanel() {
                       {booking.status === 'PENDING' ? (
                         <div className="flex flex-wrap gap-1.5">
                           <button
-                            onClick={() => setSelectedAction({ type: 'approve', id: booking.id })}
+                            onClick={() =>
+                              setSelectedAction({ type: 'approve', id: booking.id })
+                            }
                             className="rounded-full bg-emerald-600 px-3 py-1.5 text-[10px] font-semibold text-white hover:bg-emerald-700"
                           >
                             Approve
                           </button>
                           <button
-                            onClick={() => setSelectedAction({ type: 'reject', id: booking.id })}
+                            onClick={() =>
+                              setSelectedAction({ type: 'reject', id: booking.id })
+                            }
                             className="rounded-full bg-rose-600 px-3 py-1.5 text-[10px] font-semibold text-white hover:bg-rose-700"
                           >
                             Reject
                           </button>
                         </div>
                       ) : (
-                        <span className="text-[11px] text-slate-500">No actions</span>
+                        <span className="text-[11px] text-slate-400">No actions</span>
                       )}
                     </td>
                   </tr>
@@ -237,10 +271,11 @@ export default function AdminPanel() {
         )}
       </div>
 
+      {/* Approval / Rejection modal */}
       {selectedAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-5 text-xs shadow-card">
-            <h2 className="text-sm font-semibold text-slate-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#094886]/40 p-4">
+          <div className="w-full max-w-md rounded-lg border border-[#094886]/20 bg-white p-5 shadow-lg">
+            <h2 className="text-sm font-semibold text-[#094886]">
               {selectedAction.type === 'approve' ? 'Approve booking' : 'Reject booking'}
             </h2>
             <p className="mt-1 text-[11px] text-slate-500">
@@ -248,14 +283,14 @@ export default function AdminPanel() {
             </p>
 
             <div className="mt-4">
-              <label className="mb-1 block text-[11px] font-semibold text-slate-800">
+              <label className="mb-1 block text-[11px] font-semibold text-slate-700">
                 Admin notes
               </label>
               <textarea
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
-                rows="4"
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
+                rows={4}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
                 placeholder="Short explanation (optional)"
               />
             </div>
@@ -282,7 +317,7 @@ export default function AdminPanel() {
                   setSelectedAction(null);
                   setAdminNotes('');
                 }}
-                className="flex-1 rounded-full border border-slate-300 bg-white px-4 py-2.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                className="flex-1 rounded-full border border-slate-300 bg-white px-4 py-2.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -294,11 +329,11 @@ export default function AdminPanel() {
   );
 }
 
-function AdminStat({ label, value }) {
+function AdminStat({ label, value, cardStyle = '', textStyle = '' }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-white px-3 py-2 shadow-sm">
-      <p className="text-[11px] text-slate-500">{label}</p>
-      <p className="mt-1 text-base font-semibold text-slate-900">{value}</p>
+    <div className={`rounded-md border px-3 py-2 shadow-sm ${cardStyle}`}>
+      <p className={`text-[11px] font-medium ${textStyle} opacity-80`}>{label}</p>
+      <p className={`mt-1 text-base font-semibold ${textStyle}`}>{value}</p>
     </div>
   );
 }
