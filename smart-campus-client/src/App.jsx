@@ -24,6 +24,7 @@ import RoleProtectedRoute from './components/RoleProtectedRoute';
 
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import BookingRequest from './pages/BookingRequest';
 import NotificationPage from './pages/NotificationPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminPanel from './pages/AdminPanel';
@@ -102,6 +103,10 @@ function App() {
             <Route
               path="/dashboard"
               element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}
+            />
+            <Route
+              path="/booking"
+              element={<ProtectedRoute><BookingRequest /></ProtectedRoute>}
             />
             <Route
               path="/notifications"

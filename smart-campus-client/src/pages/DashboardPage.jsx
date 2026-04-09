@@ -80,10 +80,10 @@ export default function DashboardPage() {
               <span>Manage Users</span>
             </Link>
           )}
-          <div className="action-card action-card--teal" style={{ cursor: 'default' }}>
+          <Link to="/booking" className="action-card action-card--teal">
             <span>🗓️</span>
-            <span>Room Bookings</span>
-          </div>
+            <span>Booking</span>
+          </Link>
           <div className="action-card action-card--amber" style={{ cursor: 'default' }}>
             <span>🎫</span>
             <span>Support Tickets</span>
