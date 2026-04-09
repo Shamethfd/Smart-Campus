@@ -11,7 +11,7 @@ import java.time.Instant;
 
 /**
  * MongoDB Document representing a Smart Campus user.
- * Users are created automatically when they first log in with Google OAuth 2.0.
+ * Users are created conditionally or when they log in via OAuth/Admin setup.
  */
 @Document(collection = "users")
 public class User {
@@ -23,6 +23,8 @@ public class User {
     
     @Indexed(unique = true)
     private String email;
+
+    private String password; // Added for traditional admin login
     
     private String profilePicture;
     private String authProvider;
@@ -37,10 +39,11 @@ public class User {
 
     public User() {}
 
-    public User(String id, String name, String email, String profilePicture, String authProvider, Role role, boolean active, Instant createdAt, Instant updatedAt) {
+    public User(String id, String name, String email, String password, String profilePicture, String authProvider, Role role, boolean active, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.password = password;
         this.profilePicture = profilePicture;
         this.authProvider = authProvider;
         this.role = role;
@@ -58,6 +61,9 @@ public class User {
     
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
     
     public String getProfilePicture() { return profilePicture; }
     public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }

@@ -1,6 +1,7 @@
 package com.smartcampus.controller;
 
 import com.smartcampus.dto.ApiResponse;
+import com.smartcampus.dto.LoginRequestDto;
 import com.smartcampus.dto.OAuthLoginRequest;
 import com.smartcampus.dto.UserResponseDto;
 import com.smartcampus.security.CustomUserDetails;
@@ -17,6 +18,7 @@ import java.util.Map;
  *
  * Endpoints:
  * POST /api/auth/oauth-success - Receive Google token, return JWT (PUBLIC)
+ * POST /api/auth/login         - Traditional email/password login (PUBLIC)
  * GET  /api/auth/me            - Get current logged-in user profile (AUTHENTICATED)
  *
  * Member 4 - Auth Controller
@@ -31,7 +33,19 @@ public class AuthController {
         this.authService = authService;
     }
 
-
+    /**
+     * POST /api/auth/login
+     * Traditional email and password login, specifically for Admin.
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<Map<String, String>>> loginUser(@Valid @RequestBody LoginRequestDto loginRequest) {
+        try {
+            String token = authService.login(loginRequest);
+            return ResponseEntity.ok(ApiResponse.success("Login successful", Map.of("token", token)));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(ApiResponse.error(e.getMessage()));
+        }
+    }
 
     /**
      * GET /api/auth/me

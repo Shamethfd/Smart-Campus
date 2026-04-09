@@ -43,3 +43,12 @@ export const getCurrentUser = async () => {
   const response = await api.get('/api/auth/me');
   return response.data; // { success, message, data: UserResponseDto }
 };
+
+/**
+ * POST /api/auth/login
+ * Traditional email/password admin login.
+ */
+export const credentialLogin = async (email, password) => {
+  const response = await api.post('/api/auth/login', { email, password });
+  return response.data; // { success, message, data: { token } }
+};

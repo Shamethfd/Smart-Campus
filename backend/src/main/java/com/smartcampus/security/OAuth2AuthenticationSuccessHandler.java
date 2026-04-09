@@ -52,6 +52,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                             null,
                             name,
                             email,
+                            null, // Password is null for OAuth users
                             picture,
                             "GOOGLE",
                             Role.USER,

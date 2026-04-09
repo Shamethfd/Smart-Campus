@@ -3,8 +3,8 @@
  * API service for admin-only endpoints.
  *
  * Endpoints used:
- *   GET  /api/admin/users           – fetch all users
- *   PUT  /api/admin/users/{id}/roles – update a user's role
+ *   GET  /api/users                 – fetch all users (ADMIN)
+ *   PATCH /api/users/{id}/role       – update a user's role (ADMIN)
  *   GET  /api/notifications          – all notifications (admin view)
  *
  * Member 4 – Admin API Service
@@ -26,15 +26,15 @@ api.interceptors.request.use((config) => {
 
 // ── User management ──────────────────────────────────────
 
-/** GET /api/admin/users — list all registered users */
+/** GET /api/users — list all registered users */
 export const adminGetAllUsers = async () => {
-  const res = await api.get('/api/admin/users');
+  const res = await api.get('/api/users');
   return res.data; // { success, data: User[] }
 };
 
-/** PUT /api/admin/users/{id}/roles — update a user's role */
+/** PATCH /api/users/{id}/role — update a user's role */
 export const adminUpdateUserRole = async (userId, role) => {
-  const res = await api.put(`/api/admin/users/${userId}/roles`, { role });
+  const res = await api.patch(`/api/users/${userId}/role`, { role });
   return res.data;
 };
 

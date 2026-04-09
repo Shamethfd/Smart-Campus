@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // NEW
+import org.springframework.security.crypto.password.PasswordEncoder; // NEW
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -26,7 +28,7 @@ import java.util.List;
  * - Method Security: @PreAuthorize annotations work because of @EnableMethodSecurity
  *
  * Endpoint access rules:
- * - Public: /api/health/**, /api/auth/oauth-success (login doesn't require token)
+ * - Public: /api/health/**, /api/auth/login, /api/auth/oauth-success 
  * - ADMIN only: /api/users/** (role management)
  * - Authenticated users: /api/auth/me, /api/notifications/**
  *
@@ -47,6 +49,11 @@ public class SecurityConfig {
                           com.smartcampus.security.OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -71,7 +78,7 @@ public class SecurityConfig {
             // Define which endpoints are public vs protected
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints - no token required
-                .requestMatchers("/api/health/**", "/health/**", "/error").permitAll()
+                .requestMatchers("/api/health/**", "/health/**", "/error", "/api/auth/login").permitAll()
 
                 // ADMIN only endpoint - role management
                 .requestMatchers("/api/users/**").hasRole("ADMIN")
