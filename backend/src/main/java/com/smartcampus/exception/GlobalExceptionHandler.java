@@ -41,6 +41,13 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), request);
     }
 
+    @ExceptionHandler(BookingException.class)
+    public ResponseEntity<Map<String, Object>> handleBookingException(
+            BookingException ex,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Booking Error", ex.getMessage(), request);
+    }
+
     /** 403 - User doesn't have permission */
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<Map<String, Object>> handleUnauthorized(
