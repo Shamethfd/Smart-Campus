@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+backend/src/main/resources/application.properties
+
+spring.data.mongodb.uri=${MONGO_URI}
+google.client.secret=${GOOGLE_SECRET}

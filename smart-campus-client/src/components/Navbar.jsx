@@ -1,14 +1,15 @@
 /**
  * Navbar.jsx
- * Top navigation bar shown on all authenticated pages.
- * 
+ * Top navigation bar shown on all authenticated regular pages.
+ *
  * Features:
  * - Smart Campus logo & branding
  * - Navigation links (conditional by role)
  * - Notification bell with unread badge
  * - User avatar + name + role badge
  * - Logout button
- * 
+ * - Admin badge linking to /admin/dashboard for ADMIN users
+ *
  * Member 4 - Navbar Component
  */
 
@@ -54,10 +55,10 @@ export default function Navbar() {
         </Link>
         {isAdmin && (
           <Link
-            to="/admin/users"
-            className={`navbar__link navbar__link--admin ${isActive('/admin/users') ? 'navbar__link--active' : ''}`}
+            to="/admin/dashboard"
+            className="navbar__link navbar__link--admin"
           >
-            👥 Manage Users
+            📊 Admin Panel
           </Link>
         )}
       </div>
