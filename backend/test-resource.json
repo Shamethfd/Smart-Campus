@@ -1,0 +1,11 @@
+{
+  "name": "Test Resource",
+  "type": "LECTURE_HALL",
+  "building": "MAIN",
+  "floor": 1,
+  "capacity": 50,
+  "availableFrom": "08:00",
+  "availableTo": "18:00",
+  "availableDays": ["MON", "TUE", "WED", "THU", "FRI"],
+  "status": "WORKING"
+}
