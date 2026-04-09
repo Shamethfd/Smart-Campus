@@ -1,121 +1,108 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+/**
+ * App.jsx
+ * Main application layout and router setup.
+ * 
+ * Sets up:
+ * - Google OAuth Provider context
+ * - Custom AuthProvider context
+ * - React Router
+ * - Toast notification container
+ * 
+ * Member 4 - App Setup
+ */
 
-function App() {
-  const [count, setCount] = useState(0)
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
+import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './hooks/useAuth';
+import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import RoleProtectedRoute from './components/RoleProtectedRoute';
+
+// Pages
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import NotificationPage from './pages/NotificationPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import UnauthorizedPage from './pages/UnauthorizedPage';
+import OAuth2RedirectHandler from './components/OAuth2RedirectHandler';
+
+// Main Layout component (includes Navbar)
+function MainLayout() {
+  const { isAuthenticated } = useAuth();
+  
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <div className="app-container">
+      {/* Show Navbar only if logged in */}
+      {isAuthenticated && <Navbar />}
+      
+      {/* Page content */}
+      <main className="app-main">
+        <Outlet />
+      </main>
+    </div>
+  );
 }
 
-export default App
+function App() {
+  return (
+      <AuthProvider>
+        <Router>
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#333',
+                color: '#fff',
+                borderRadius: '8px',
+                padding: '16px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              }
+            }}
+          />
+          
+          <Routes>
+            {/* Public route */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+
+            {/* Protected routes wrapped in MainLayout */}
+            <Route element={<MainLayout />}>
+              
+              {/* Common protected routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/notifications" element={
+                <ProtectedRoute>
+                  <NotificationPage />
+                </ProtectedRoute>
+              } />
+
+              {/* Admin-only protected routes */}
+              <Route path="/admin/users" element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRole="ADMIN">
+                    <AdminUsersPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } />
+
+              {/* Error pages */}
+              <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+              {/* Default redirect (e.g. / -> /dashboard) */}
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
+  );
+}
+
+export default App;
