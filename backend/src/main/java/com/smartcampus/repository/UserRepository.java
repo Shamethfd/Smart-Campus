@@ -22,6 +22,11 @@ public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByEmail(String email);
 
     /**
+     * Case-insensitive match for login (OAuth may store mixed-case emails).
+     */
+    Optional<User> findByEmailIgnoreCase(String email);
+
+    /**
      * Check if a user with the given email exists.
      * Used to decide whether to create a new user or update existing.
      */

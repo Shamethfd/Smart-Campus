@@ -82,11 +82,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
+        // Include common Vite / CRA dev ports so admin login from the browser is not blocked by CORS
+        // when the dev server binds to e.g. 5174 instead of 5173.
         config.setAllowedOrigins(List.of(
                 frontendUrl,
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
-                "http://localhost:3000"
+                "http://localhost:5174",
+                "http://127.0.0.1:5174",
+                "http://localhost:4173",
+                "http://127.0.0.1:4173",
+                "http://localhost:3000",
+                "http://127.0.0.1:3000"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

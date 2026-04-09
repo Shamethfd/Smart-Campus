@@ -55,13 +55,12 @@ const QUICK_ACTIONS = [
   },
   {
     id: 'qa-bookings',
-    to: '#',
+    to: '/admin/bookings',
     icon: '🗓️',
-    label: 'Room Bookings',
-    desc: 'Coming soon',
+    label: 'Booking Management',
+    desc: 'Review and update booking requests',
     color: '#0ea5e9',
     bg: '#e0f2fe',
-    disabled: true,
   },
   {
     id: 'qa-tickets',

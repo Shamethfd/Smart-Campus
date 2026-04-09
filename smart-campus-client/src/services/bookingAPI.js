@@ -1,17 +1,17 @@
 import axios from 'axios';
+import { getToken } from '../utils/tokenUtils';
 
-const API_BASE_URL = 'http://localhost:8081/api/v1/bookings';
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8081';
 
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${BASE}/api/v1/bookings`,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Add auth token to requests if needed
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken');
+  const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -19,41 +19,26 @@ apiClient.interceptors.request.use((config) => {
 });
 
 export const bookingAPI = {
-  // Create a new booking
-  createBooking: (bookingData) =>
-    apiClient.post('', bookingData),
+  createBooking: (bookingData) => apiClient.post('', bookingData),
 
-  // Get user's bookings
-  getUserBookings: () =>
-    apiClient.get('/my-bookings'),
+  getUserBookings: () => apiClient.get('/my-bookings'),
 
-  // Get specific booking
-  getBooking: (bookingId) =>
-    apiClient.get(`/${bookingId}`),
+  getBooking: (bookingId) => apiClient.get(`/${bookingId}`),
 
-  // Get resource bookings by date
   getResourceBookingsByDate: (resourceId, date) =>
     apiClient.get(`/resource/${resourceId}/date`, { params: { date } }),
 
-  // Admin: Get all bookings
-  getAllBookings: () =>
-    apiClient.get('/admin/all'),
+  getAllBookings: () => apiClient.get('/admin/all'),
 
-  // Admin: Get bookings by status
-  getBookingsByStatus: (status) =>
-    apiClient.get(`/admin/status/${status}`),
+  getBookingsByStatus: (status) => apiClient.get(`/admin/status/${status}`),
 
-  // Admin: Approve booking
   approveBooking: (bookingId, notes) =>
     apiClient.put(`/${bookingId}/approve`, null, { params: { notes } }),
 
-  // Admin: Reject booking
   rejectBooking: (bookingId, notes) =>
     apiClient.put(`/${bookingId}/reject`, null, { params: { notes } }),
 
-  // User: Cancel booking
-  cancelBooking: (bookingId) =>
-    apiClient.delete(`/${bookingId}/cancel`),
+  cancelBooking: (bookingId) => apiClient.delete(`/${bookingId}/cancel`),
 };
 
 export default bookingAPI;

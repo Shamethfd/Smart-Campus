@@ -35,14 +35,23 @@ public class DataSeeder {
     public CommandLineRunner seedData(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             // Seed or Update ADMIN user
-            java.util.Optional<User> existingAdmin = userRepository.findByEmail("pafproject@gmail.com");
+            java.util.Optional<User> existingAdmin = userRepository.findByEmailIgnoreCase("pafproject@gmail.com");
             if (existingAdmin.isPresent()) {
                 User admin = existingAdmin.get();
-                if (admin.getPassword() == null || admin.getRole() != Role.ADMIN) {
+                boolean passwordMismatch = admin.getPassword() == null
+                        || !passwordEncoder.matches("12345678", admin.getPassword());
+                boolean roleMismatch = admin.getRole() != Role.ADMIN;
+                boolean inactiveAccount = !admin.isActive();
+                boolean authProviderMismatch = admin.getAuthProvider() == null
+                        || !"CREDENTIALS".equalsIgnoreCase(admin.getAuthProvider());
+
+                if (passwordMismatch || roleMismatch || inactiveAccount || authProviderMismatch) {
                     admin.setPassword(passwordEncoder.encode("12345678"));
                     admin.setRole(Role.ADMIN);
+                    admin.setActive(true);
+                    admin.setAuthProvider("CREDENTIALS");
                     userRepository.save(admin);
-                    logger.info("Updated existing OAuth user pafproject@gmail.com with Admin password & Role.");
+                    logger.info("Synced admin credentials for pafproject@gmail.com (password/role/status/provider).");
                 }
             } else {
                 User admin = new User(

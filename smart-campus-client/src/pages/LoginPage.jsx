@@ -39,20 +39,32 @@ export default function LoginPage() {
 
   const handleAdminLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail || !password) {
       toast.error('Email and password required');
       return;
     }
     setLoading(true);
     try {
-      const res = await credentialLogin(email, password);
+      const res = await credentialLogin(trimmedEmail, password);
       if (res.success && res.data?.token) {
         saveToken(res.data.token);
         toast.success('Admin login successful!');
         window.location.href = '/admin/users';
+      } else {
+        toast.error(res.message || 'Login failed. Invalid credentials.');
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed. Invalid credentials.');
+      const data = err.response?.data;
+      const apiMsg =
+        data?.message ||
+        (data?.fieldErrors &&
+          Object.values(data.fieldErrors).filter(Boolean).join(' '));
+      const hint =
+        err.code === 'ERR_NETWORK' || err.message === 'Network Error'
+          ? 'Cannot reach API. Is the backend running on port 8081, and VITE_API_URL correct?'
+          : '';
+      toast.error(apiMsg || hint || 'Login failed. Invalid credentials.');
     } finally {
       setLoading(false);
     }

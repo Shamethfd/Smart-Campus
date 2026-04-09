@@ -31,7 +31,8 @@ public class AuthService {
     }
 
     public String login(LoginRequestDto loginRequest) {
-        Optional<User> optionalUser = userRepository.findByEmail(loginRequest.getEmail());
+        String email = loginRequest.getEmail() == null ? "" : loginRequest.getEmail().trim().toLowerCase();
+        Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
         if (optionalUser.isEmpty()) {
             throw new RuntimeException("Invalid email or password");
         }

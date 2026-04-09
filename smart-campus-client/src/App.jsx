@@ -26,6 +26,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import NotificationPage from './pages/NotificationPage';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminPanel from './pages/AdminPanel';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminNotificationsPage from './pages/AdminNotificationsPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
@@ -86,6 +87,10 @@ function App() {
             <Route
               path="/admin/users"
               element={<AdminRoute><AdminUsersPage /></AdminRoute>}
+            />
+            <Route
+              path="/admin/bookings"
+              element={<AdminRoute><AdminPanel /></AdminRoute>}
             />
             <Route
               path="/admin/notifications"
