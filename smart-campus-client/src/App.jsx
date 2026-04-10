@@ -19,7 +19,6 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 
@@ -31,11 +30,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminPanel from './pages/AdminPanel';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminNotificationsPage from './pages/AdminNotificationsPage';
-import ResourceList from './pages/ResourceList';
-import ResourceDetail from './pages/ResourceDetail';
 import ResourceForm from './pages/ResourceForm';
-import CompareResources from './pages/CompareResources';
-import QRScanner from './pages/QRScanner';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import OAuth2RedirectHandler from './components/OAuth2RedirectHandler';
 
@@ -54,17 +49,6 @@ function MainLayout() {
 
 function SidebarLayout() {
   return <Outlet />;
-}
-
-function AdminResourceLayout() {
-  return (
-    <div className="flex min-h-dvh bg-slate-50">
-      <Sidebar />
-      <main className="min-w-0 flex-1 p-4 sm:p-8">
-        <ResourceForm />
-      </main>
-    </div>
-  );
 }
 
 function AdminRoute({ children }) {
@@ -116,15 +100,15 @@ function App() {
             />
             <Route
               path="/admin/resources"
-              element={<AdminRoute><AdminResourceLayout /></AdminRoute>}
+              element={<AdminRoute><ResourceForm /></AdminRoute>}
             />
             <Route
               path="/resource/add"
-              element={<AdminRoute><AdminResourceLayout /></AdminRoute>}
+              element={<AdminRoute><ResourceForm /></AdminRoute>}
             />
             <Route
               path="/resource/edit/:id"
-              element={<AdminRoute><AdminResourceLayout /></AdminRoute>}
+              element={<AdminRoute><ResourceForm /></AdminRoute>}
             />
           </Route>
 
@@ -133,10 +117,6 @@ function App() {
               path="/dashboard"
               element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}
             />
-            <Route path="/resources" element={<ResourceList />} />
-            <Route path="/resource/:id" element={<ResourceDetail />} />
-            <Route path="/compare" element={<CompareResources />} />
-            <Route path="/scan" element={<QRScanner />} />
             <Route
               path="/booking"
               element={<ProtectedRoute><BookingRequest /></ProtectedRoute>}

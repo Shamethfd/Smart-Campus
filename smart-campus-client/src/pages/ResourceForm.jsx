@@ -157,7 +157,7 @@ const ResourceForm = () => {
       });
     } catch {
       toast.error('Failed to fetch resource');
-      navigate('/resources');
+      navigate('/admin/resources');
     } finally {
       setFetchLoading(false);
     }
@@ -222,7 +222,7 @@ const ResourceForm = () => {
         await axios.post(`${API_BASE_URL}/api/resources`, data);
         toast.success('Resource created successfully');
       }
-      navigate('/resources');
+      navigate('/admin/resources');
     } catch (error) {
       const msg = error.response?.data?.message || error.response?.data?.error || error.message
                || (isEditing ? 'Failed to update' : 'Failed to create');
@@ -300,7 +300,7 @@ const ResourceForm = () => {
               {isEditing ? 'Update the details below' : 'Fill in the details to register a new resource'}
             </p>
           </div>
-          <button onClick={() => navigate('/resources')}
+            <button onClick={() => navigate('/admin/resources')}
                   className="w-10 h-10 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-all duration-200">
             <FiX size={20} />
           </button>
@@ -564,7 +564,7 @@ const ResourceForm = () => {
               </button>
 
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => navigate('/resources')}
+                <button type="button" onClick={() => navigate('/admin/resources')}
                         className="px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all duration-200">
                   Cancel
                 </button>
