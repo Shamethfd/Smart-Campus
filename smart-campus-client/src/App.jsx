@@ -26,6 +26,9 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import BookingRequest from './pages/BookingRequest';
 import NotificationPage from './pages/NotificationPage';
+import ResourceList from './pages/ResourceList';
+import ResourceDetail from './pages/ResourceDetail';
+import ResourceEntryRedirect from './pages/ResourceEntryRedirect';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminPanel from './pages/AdminPanel';
 import AdminUsersPage from './pages/AdminUsersPage';
@@ -124,6 +127,18 @@ function App() {
             <Route
               path="/notifications"
               element={<ProtectedRoute><NotificationPage /></ProtectedRoute>}
+            />
+            <Route
+              path="/resources"
+              element={<ProtectedRoute><ResourceList /></ProtectedRoute>}
+            />
+            <Route
+              path="/resource/:id"
+              element={<ProtectedRoute><ResourceDetail /></ProtectedRoute>}
+            />
+            <Route
+              path="/resource"
+              element={<ProtectedRoute><ResourceEntryRedirect /></ProtectedRoute>}
             />
 
             <Route path="/unauthorized" element={<UnauthorizedPage />} />

@@ -6,6 +6,9 @@
  * Member 4 - Dashboard UI
  */
 
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { API_BASE_URL } from '../lib/apiBase';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
 import { Link } from 'react-router-dom';
@@ -19,8 +22,33 @@ const TYPE_COLORS = { BOOKING: '#6366f1', TICKET: '#f59e0b', COMMENT: '#10b981',
 export default function DashboardPage() {
   const { user, isAdmin } = useAuth();
   const { notifications, unreadCount } = useNotifications();
+  const [defaultResourceId, setDefaultResourceId] = useState(null);
 
   const recentNotifs = notifications.slice(0, 5);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchFirstResource = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/resources`, {
+          params: { page: 0, size: 1, sortBy: 'name', sortDir: 'asc' },
+        });
+        const firstResourceId = response.data?.content?.[0]?.id;
+        if (isMounted && firstResourceId != null) {
+          setDefaultResourceId(firstResourceId);
+        }
+      } catch {
+        // Keep fallback navigation when no resources can be loaded.
+      }
+    };
+
+    fetchFirstResource();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -112,7 +140,7 @@ export default function DashboardPage() {
             </Link>
           )}
           <Link
-            to="/booking"
+            to={defaultResourceId ? `/resource/${defaultResourceId}` : '/resource'}
             className="group rounded-2xl border border-blue-200 bg-blue-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <div className="text-2xl">🗓️</div>

@@ -5,6 +5,19 @@ import { toast } from 'react-hot-toast';
 import ResourceCard from '../components/ResourceCard';
 import axios from 'axios';
 import { API_BASE_URL } from '../lib/apiBase';
+import { getToken } from '../utils/tokenUtils';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 const ResourceList = () => {
   const [resources, setResources] = useState([]);
@@ -58,12 +71,18 @@ const ResourceList = () => {
       if (filters.minCapacity) params.append('minCapacity', filters.minCapacity);
       if (filters.maxCapacity) params.append('maxCapacity', filters.maxCapacity);
 
-      const response = await axios.get(`${API_BASE_URL}/api/resources?${params}`);
-      setResources(response.data.content);
-      setTotalPages(response.data.totalPages);
-      setTotalElements(response.data.totalElements);
+      const response = await api.get(`/api/resources?${params}`);
+      const pageData = response.data?.data ?? response.data;
+      setResources(pageData?.content ?? []);
+      setTotalPages(pageData?.totalPages ?? 0);
+      setTotalElements(pageData?.totalElements ?? 0);
     } catch (error) {
-      toast.error('Failed to fetch resources');
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        (error.response?.status === 401 ? 'Please login again to view resources' : null) ||
+        'Failed to fetch resources';
+      toast.error(message);
       console.error('Error fetching resources:', error);
     } finally {
       setLoading(false);
@@ -102,7 +121,7 @@ const ResourceList = () => {
     }
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/resources/bulk`, {
+      await api.delete('/api/resources/bulk', {
         data: Array.from(selectedResources)
       });
       toast.success('Resources deleted successfully');
@@ -120,7 +139,7 @@ const ResourceList = () => {
     }
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/resources/${id}`);
+      await api.delete(`/api/resources/${id}`);
       toast.success('Resource deleted successfully');
       fetchResources();
     } catch (error) {
