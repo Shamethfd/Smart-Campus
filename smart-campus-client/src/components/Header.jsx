@@ -23,7 +23,7 @@ const Header = () => {
 
   const adminNavigation = [
     { name: 'Add Resource', href: '/resource/add', icon: FiPlus },
-    { name: 'Dashboard', href: '/admin/dashboard', icon: FiSettings },
+    { name: 'Dashboard', href: '/smart-admin/dashboard', icon: FiSettings },
   ];
 
   return (

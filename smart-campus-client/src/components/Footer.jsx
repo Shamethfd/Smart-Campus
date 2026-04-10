@@ -50,8 +50,8 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="/admin/dashboard" className="text-gray-300 hover:text-white transition-colors">
-                  Admin Dashboard
+                <a href="/smart-admin/dashboard" className="text-gray-300 hover:text-white transition-colors">
+                  Smart Admin Dashboard
                 </a>
               </li>
             </ul>
