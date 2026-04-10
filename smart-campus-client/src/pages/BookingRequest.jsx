@@ -1,51 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bookingAPI from '../services/bookingAPI';
 import Button from '../components/ui/Button';
 import Card, { CardBody, CardHeader } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
+import axios from 'axios';
+import { API_BASE_URL } from '../lib/apiBase';
 
-const RESOURCE_TYPES = [
-  {
-    value: 'ROOM',
-    label: 'Room',
-    icon: (
-      <svg fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"
-        />
-      </svg>
-    ),
-  },
-  {
-    value: 'LAB',
-    label: 'Lab',
-    icon: (
-      <svg fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15M14.25 3.104c.251.023.501.05.75.082M19.8 15a2.25 2.25 0 01.45 1.317c0 1.16-.792 2.033-1.72 2.033H5.47c-.928 0-1.72-.874-1.72-2.033 0-.483.17-.927.45-1.317L9 10.5"
-        />
-      </svg>
-    ),
-  },
-  {
-    value: 'EQUIPMENT',
-    label: 'Equipment',
-    icon: (
-      <svg fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z"
-        />
-      </svg>
-    ),
-  },
-];
+function toMinutes(hhmm) {
+  if (!hhmm) return null;
+  const [h, m] = String(hhmm).slice(0, 5).split(':').map((x) => Number(x));
+  if (Number.isNaN(h) || Number.isNaN(m)) return null;
+  return h * 60 + m;
+}
+
+function overlaps(aStart, aEnd, bStart, bEnd) {
+  return aStart < bEnd && aEnd > bStart;
+}
 
 const STEPS = [
   { num: 1, label: 'Resource type', desc: 'Select the resource type and identifier.' },
@@ -57,8 +28,6 @@ export default function BookingRequest() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     resourceId: '',
-    resourceName: '',
-    resourceType: 'ROOM',
     bookingDate: '',
     startTime: '',
     endTime: '',
@@ -66,6 +35,62 @@ export default function BookingRequest() {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [resources, setResources] = useState([]);
+  const [loadingResources, setLoadingResources] = useState(true);
+  const [bookingsOnDate, setBookingsOnDate] = useState([]);
+
+  const selectedResource = resources.find((r) => String(r.id) === String(formData.resourceId));
+
+  const fetchResources = async () => {
+    setLoadingResources(true);
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/resources`, {
+        params: { page: 0, size: 1000, sortBy: 'name', sortDir: 'asc' },
+      });
+      const list = res.data?.content ?? [];
+      setResources(list.filter((r) => r.status === 'WORKING'));
+    } finally {
+      setLoadingResources(false);
+    }
+  };
+
+  const fetchBookingsForDate = async (date) => {
+    if (!date) {
+      setBookingsOnDate([]);
+      return;
+    }
+    try {
+      const res = await bookingAPI.getBookingsOnDate(date);
+      setBookingsOnDate(res.data?.data ?? []);
+    } catch {
+      setBookingsOnDate([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
+  const isSubmitDisabled = useMemo(() => {
+    if (loading) return true;
+    if (!selectedResource) return true;
+    if (!formData.bookingDate || !formData.startTime || !formData.endTime) return true;
+    const reqStart = toMinutes(formData.startTime);
+    const reqEnd = toMinutes(formData.endTime);
+    if (reqStart == null || reqEnd == null || reqStart >= reqEnd) return true;
+    const outsideHours =
+      reqStart < toMinutes(selectedResource.availableFrom) ||
+      reqEnd > toMinutes(selectedResource.availableTo);
+    if (outsideHours) return true;
+    const conflicts = bookingsOnDate.some((b) => {
+      if (String(b.resourceId) !== String(selectedResource.id)) return false;
+      const bStart = toMinutes(b.startTime);
+      const bEnd = toMinutes(b.endTime);
+      if (bStart == null || bEnd == null) return false;
+      return overlaps(reqStart, reqEnd, bStart, bEnd);
+    });
+    return conflicts;
+  }, [bookingsOnDate, formData.bookingDate, formData.endTime, formData.startTime, loading, selectedResource]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -75,8 +100,6 @@ export default function BookingRequest() {
   const handleReset = () =>
     setFormData({
       resourceId: '',
-      resourceName: '',
-      resourceType: 'ROOM',
       bookingDate: '',
       startTime: '',
       endTime: '',
@@ -88,7 +111,19 @@ export default function BookingRequest() {
     setLoading(true);
     setMessage({ type: '', text: '' });
     try {
-      await bookingAPI.createBooking(formData);
+      if (!selectedResource) {
+        setMessage({ type: 'error', text: 'Please select a resource.' });
+        return;
+      }
+
+      const payload = {
+        ...formData,
+        resourceId: String(selectedResource.id),
+        resourceName: selectedResource.name,
+        resourceType: selectedResource.type,
+      };
+
+      await bookingAPI.createBooking(payload);
       setMessage({ type: 'success', text: 'Booking request submitted successfully.' });
       handleReset();
       navigate('/dashboard');
@@ -171,70 +206,37 @@ export default function BookingRequest() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <fieldset className="space-y-3">
-                <legend className="text-xs font-extrabold uppercase tracking-widest text-slate-500">
-                  Resource type <span className="text-red-500">*</span>
-                </legend>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  {RESOURCE_TYPES.map((rt) => {
-                    const active = formData.resourceType === rt.value;
-                    return (
-                      <label
-                        key={rt.value}
-                        className={[
-                          'relative cursor-pointer rounded-2xl border p-4 text-center transition',
-                          active
-                            ? 'border-blue-500 bg-blue-50 text-blue-800'
-                            : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-white',
-                        ].join(' ')}
-                      >
-                        <input
-                          type="radio"
-                          name="resourceType"
-                          value={rt.value}
-                          checked={active}
-                          onChange={handleInputChange}
-                          className="sr-only"
-                        />
-                        {active && (
-                          <span className="absolute right-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-extrabold text-white">
-                            ✓
-                          </span>
-                        )}
-                        <span className="mx-auto block h-6 w-6 text-current">{rt.icon}</span>
-                        <span className="mt-2 block text-xs font-extrabold uppercase tracking-wider">
-                          {rt.label}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </fieldset>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField label="Resource ID" required>
-                  <input
-                    type="text"
-                    name="resourceId"
-                    value={formData.resourceId}
-                    onChange={handleInputChange}
-                    placeholder="e.g. R-101"
-                    required
-                    className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </FormField>
-                <FormField label="Resource name" required>
-                  <input
-                    type="text"
-                    name="resourceName"
-                    value={formData.resourceName}
-                    onChange={handleInputChange}
-                    placeholder="e.g. Conference Room A"
-                    required
-                    className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </FormField>
-              </div>
+              <FormField label="Resource" required>
+                <select
+                  name="resourceId"
+                  value={formData.resourceId}
+                  onChange={(e) => {
+                    handleInputChange(e);
+                  }}
+                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
+                  required
+                  disabled={loadingResources}
+                >
+                  <option value="">
+                    {loadingResources ? 'Loading resources…' : 'Select a resource…'}
+                  </option>
+                  {resources.map((r) => (
+                    <option key={r.id} value={String(r.id)}>
+                      {r.name} · {r.building} · Floor {r.floor}
+                    </option>
+                  ))}
+                </select>
+                {selectedResource ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge variant="info">{selectedResource.type}</Badge>
+                    <Badge variant="neutral">{selectedResource.building}</Badge>
+                    <Badge variant="neutral">Cap {selectedResource.capacity}</Badge>
+                    <Badge variant="success">
+                      {selectedResource.availableFrom}–{selectedResource.availableTo}
+                    </Badge>
+                  </div>
+                ) : null}
+              </FormField>
 
               <div>
                 <p className="text-xs font-extrabold uppercase tracking-widest text-slate-500">
@@ -246,7 +248,10 @@ export default function BookingRequest() {
                       type="date"
                       name="bookingDate"
                       value={formData.bookingDate}
-                      onChange={handleInputChange}
+                      onChange={(e) => {
+                        handleInputChange(e);
+                        fetchBookingsForDate(e.target.value);
+                      }}
                       required
                       className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     />
@@ -274,6 +279,47 @@ export default function BookingRequest() {
                 </div>
               </div>
 
+              {selectedResource &&
+                formData.bookingDate &&
+                formData.startTime &&
+                formData.endTime && (() => {
+                  const reqStart = toMinutes(formData.startTime);
+                  const reqEnd = toMinutes(formData.endTime);
+                  const conflicts = bookingsOnDate.filter((b) => {
+                    if (String(b.resourceId) !== String(selectedResource.id)) return false;
+                    const bStart = toMinutes(b.startTime);
+                    const bEnd = toMinutes(b.endTime);
+                    if (reqStart == null || reqEnd == null || bStart == null || bEnd == null) return false;
+                    return overlaps(reqStart, reqEnd, bStart, bEnd);
+                  });
+
+                  const outsideHours =
+                    toMinutes(formData.startTime) < toMinutes(selectedResource.availableFrom) ||
+                    toMinutes(formData.endTime) > toMinutes(selectedResource.availableTo);
+
+                  if (outsideHours) {
+                    return (
+                      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+                        Selected time is outside this resource’s availability hours.
+                      </div>
+                    );
+                  }
+
+                  if (conflicts.length > 0) {
+                    return (
+                      <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
+                        This resource is already booked for the selected time slot. Please choose another time or resource.
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
+                      Resource is available for this time slot.
+                    </div>
+                  );
+                })()}
+
               <FormField label="Additional notes" hint="Optional">
                 <textarea
                   name="notes"
@@ -289,7 +335,10 @@ export default function BookingRequest() {
                 <Button type="button" variant="outline" onClick={handleReset}>
                   Reset
                 </Button>
-                <Button type="submit" disabled={loading}>
+                <Button
+                  type="submit"
+                  disabled={isSubmitDisabled}
+                >
                   {loading ? 'Submitting…' : 'Submit request'}
                 </Button>
               </div>

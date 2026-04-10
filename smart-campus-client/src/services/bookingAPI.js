@@ -28,6 +28,8 @@ export const bookingAPI = {
   getResourceBookingsByDate: (resourceId, date) =>
     apiClient.get(`/resource/${resourceId}/date`, { params: { date } }),
 
+  getBookingsOnDate: (date) => apiClient.get('/date', { params: { date } }),
+
   getAllBookings: () => apiClient.get('/admin/all'),
 
   getBookingsByStatus: (status) => apiClient.get(`/admin/status/${status}`),

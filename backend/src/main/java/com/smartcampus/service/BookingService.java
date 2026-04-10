@@ -7,10 +7,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.smartcampus.dto.BookingRequest;
 import com.smartcampus.dto.BookingResponse;
+import com.smartcampus.entity.Resource;
+import com.smartcampus.entity.enums.DayOfWeek;
+import com.smartcampus.entity.enums.ResourceStatus;
 import com.smartcampus.exception.BookingException;
 import com.smartcampus.model.Booking;
 import com.smartcampus.model.BookingStatus;
 import com.smartcampus.repository.BookingRepository;
+import com.smartcampus.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final ResourceRepository resourceRepository;
 
     /**
      * Create a new booking with conflict prevention
@@ -30,6 +35,52 @@ public class BookingService {
 
         // Validate request
         validateBookingRequest(request);
+
+        // Must be an admin-created resource (exists in SQL)
+        Long resourcePk;
+        try {
+            resourcePk = Long.parseLong(request.getResourceId());
+        } catch (Exception e) {
+            throw new BookingException("Invalid resourceId. Please select a resource from the list.");
+        }
+
+        Resource resource = resourceRepository.findById(resourcePk)
+            .orElseThrow(() -> new BookingException("Resource not found. Please select an available resource."));
+
+        // Only WORKING resources can be booked
+        if (resource.getStatus() != null && resource.getStatus() != ResourceStatus.WORKING) {
+            throw new BookingException("This resource is not available for booking right now.");
+        }
+
+        // Validate date/day & time within resource availability
+        DayOfWeek day = DayOfWeek.valueOf(request.getBookingDate().getDayOfWeek().name().substring(0, 3));
+        if (resource.getAvailableDays() != null && !resource.getAvailableDays().isEmpty()
+            && !resource.getAvailableDays().contains(day)) {
+            throw new BookingException("This resource is not available on the selected day.");
+        }
+
+        if (resource.getAvailableFrom() != null && resource.getAvailableTo() != null) {
+            if (request.getStartTime().isBefore(resource.getAvailableFrom())
+                || request.getEndTime().isAfter(resource.getAvailableTo())) {
+                throw new BookingException("Selected time is outside resource availability hours.");
+            }
+        }
+
+        // Enforce advance booking limit (days)
+        if (resource.getAdvanceBookingLimit() != null) {
+            LocalDate maxDate = LocalDate.now().plusDays(resource.getAdvanceBookingLimit());
+            if (request.getBookingDate().isAfter(maxDate)) {
+                throw new BookingException("Selected date exceeds advance booking limit for this resource.");
+            }
+        }
+
+        // Enforce minimum notice (hours) when booking is today
+        if (resource.getMinimumNoticeHours() != null && request.getBookingDate().isEqual(LocalDate.now())) {
+            LocalTime minStart = LocalTime.now().plusHours(resource.getMinimumNoticeHours());
+            if (request.getStartTime().isBefore(minStart)) {
+                throw new BookingException("Selected time does not meet the minimum notice period.");
+            }
+        }
 
         // Check for conflicts
         List<Booking> conflictingBookings = findConflictingBookings(
@@ -49,9 +100,9 @@ public class BookingService {
         Booking booking = new Booking(
             userId,
             userName,
-            request.getResourceId(),
-            request.getResourceName(),
-            request.getResourceType(),
+            String.valueOf(resource.getId()),
+            resource.getName(),
+            resource.getType() != null ? resource.getType().name() : request.getResourceType(),
             request.getBookingDate(),
             request.getStartTime(),
             request.getEndTime()
@@ -189,6 +240,13 @@ public class BookingService {
     }
 
     /**
+     * Get active (non-cancelled) bookings on a date (for availability UI)
+     */
+    public List<BookingResponse> getBookingsOnDate(LocalDate date) {
+        return bookingRepository.findBookingsOnDate(date).stream().map(this::toResponse).toList();
+    }
+
+    /**
      * Check for time slot conflicts (internal method)
      */
     private List<Booking> findConflictingBookings(String resourceId, LocalDate date,
@@ -207,8 +265,8 @@ public class BookingService {
     private boolean hasTimeConflict(Booking existing,
                                     LocalTime newStart,
                                     LocalTime newEnd) {
-        return !(newEnd.isBefore(existing.getStartTime()) || 
-                 newStart.isAfter(existing.getEndTime()));
+        // Overlap if newStart < existingEnd AND newEnd > existingStart
+        return newStart.isBefore(existing.getEndTime()) && newEnd.isAfter(existing.getStartTime());
     }
 
     /**

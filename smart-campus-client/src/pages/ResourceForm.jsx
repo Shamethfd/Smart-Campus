@@ -12,6 +12,7 @@ import {
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { API_BASE_URL } from '../lib/apiBase';
+import { getToken } from '../utils/tokenUtils';
 
 /* ─── constants ─────────────────────────────────────────── */
 const BUILDINGS   = ['MAIN', 'ENGINEERING', 'SCIENCE', 'LIBRARY', 'ADMIN'];
@@ -116,6 +117,16 @@ const ResourceForm = () => {
   const [conflicts,    setConflicts]    = useState([]);
   const [activeSection,setActiveSection]= useState('basic');
 
+  const api = axios.create({ baseURL: API_BASE_URL });
+
+  api.interceptors.request.use((config) => {
+    const token = getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+
   const [formData, setFormData] = useState({
     name: '', type: '', building: '', floor: '', roomNumber: '',
     capacity: '', areaSqFt: '',
@@ -148,7 +159,7 @@ const ResourceForm = () => {
   const fetchResource = async () => {
     try {
       setFetchLoading(true);
-      const { data } = await axios.get(`${API_BASE_URL}/api/resources/${id}`);
+      const { data } = await api.get(`/api/resources/${id}`);
       setFormData({
         ...data,
         availableFrom:      data.availableFrom?.substring(0, 5) || '',
@@ -211,22 +222,25 @@ const ResourceForm = () => {
         accessibilityFeatures: formData.accessibilityFeatures || [],
         availableDays: formData.availableDays || ['MON','TUE','WED','THU','FRI'],
       };
-      try { await axios.get(`${API_BASE_URL}/api/health`); } catch {
+      try { await api.get('/api/health'); } catch {
         toast.error(`Cannot connect to backend at ${API_BASE_URL}`);
         setLoading(false); return;
       }
       if (isEditing) {
-        await axios.put(`${API_BASE_URL}/api/resources/${id}`, data);
+        await api.put(`/api/resources/${id}`, data);
         toast.success('Resource updated successfully');
       } else {
-        await axios.post(`${API_BASE_URL}/api/resources`, data);
+        await api.post('/api/resources', data);
         toast.success('Resource created successfully');
       }
       navigate('/admin/resources');
     } catch (error) {
       const msg = error.response?.data?.message || error.response?.data?.error || error.message
-               || (isEditing ? 'Failed to update' : 'Failed to create');
+               || (isEditing ? 'Failed to update resource' : 'Failed to create resource');
       setErrors({ submit: msg });
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error('You are not allowed to manage resources.');
+      }
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -235,7 +249,7 @@ const ResourceForm = () => {
 
   const checkConflicts = async () => {
     try {
-      const { data } = await axios.get(`${API_BASE_URL}/api/resources/check-conflict`, {
+      const { data } = await api.get('/api/resources/check-conflict', {
         params: { building: formData.building, type: formData.type, from: formData.availableFrom, to: formData.availableTo },
       });
       setConflicts(data);

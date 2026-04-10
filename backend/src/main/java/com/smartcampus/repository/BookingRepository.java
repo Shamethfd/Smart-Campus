@@ -28,6 +28,10 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     @Query("{ 'resourceId': ?0, 'bookingDate': ?1, 'status': { $ne: 'CANCELLED' } }")
     List<Booking> findBookingsForResourceOnDate(String resourceId, LocalDate bookingDate);
 
+    // Find all bookings on a date (excluding cancelled) - for availability
+    @Query("{ 'bookingDate': ?0, 'status': { $ne: 'CANCELLED' } }")
+    List<Booking> findBookingsOnDate(LocalDate bookingDate);
+
     // Find all bookings within a date range
     List<Booking> findByBookingDateBetween(LocalDate startDate, LocalDate endDate);
 }

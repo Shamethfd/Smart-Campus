@@ -139,6 +139,19 @@ public class BookingController {
     }
 
     /**
+     * Get active bookings for a specific date (used for availability UI)
+     */
+    @GetMapping("/date")
+    public ResponseEntity<Map<String, Object>> getBookingsOnDate(@RequestParam LocalDate date) {
+        List<BookingResponse> bookings = bookingService.getBookingsOnDate(date);
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("success", true);
+        response.put("count", bookings.size());
+        response.put("data", bookings);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Admin: Get all bookings
      */
     @GetMapping("/admin/all")
