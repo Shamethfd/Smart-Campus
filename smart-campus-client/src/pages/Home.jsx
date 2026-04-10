@@ -35,9 +35,9 @@ const Home = () => {
     },
     {
       icon: FiSettings,
-      title: 'Admin Dashboard',
+      title: 'Smart Admin Dashboard',
       description: 'Manage resources, view analytics, and system settings',
-      link: '/admin/dashboard',
+      link: '/smart-admin/dashboard',
       color: 'bg-orange-500',
       adminOnly: true
     }
@@ -68,8 +68,8 @@ const Home = () => {
                 Browse Resources
               </Link>
               {isAdmin && (
-                <Link to="/admin/dashboard" className="bg-white text-[#094886] px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors text-lg font-medium inline-block">
-                  Admin Dashboard
+                <Link to="/smart-admin/dashboard" className="bg-white text-[#094886] px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors text-lg font-medium inline-block">
+                  Smart Admin Dashboard
                 </Link>
               )}
               <AdminLoginButton />
@@ -181,7 +181,7 @@ const Home = () => {
                 <p className="text-gray-600 mb-4">
                   Add, edit, or remove resources and manage system settings.
                 </p>
-                <Link to="/admin/dashboard" className="btn-secondary inline-block">
+                <Link to="/smart-admin/dashboard" className="btn-secondary inline-block">
                   Manage Now
                 </Link>
               </div>
