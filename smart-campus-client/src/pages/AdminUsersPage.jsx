@@ -28,6 +28,9 @@ import { toggleUserActive } from '../services/userApi';   // existing helper
 import { formatDate } from '../utils/dateUtils';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
+import Button from '../components/ui/Button';
+import Card, { CardBody } from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
 
 /* ── constants ────────────────────────────────────────── */
 const ROLES = ['USER', 'ADMIN', 'TECHNICIAN'];
@@ -105,40 +108,37 @@ export default function AdminUsersPage() {
   );
 
   return (
-    <div className="adm-layout">
+    <div className="flex min-h-dvh bg-slate-50">
       <Sidebar />
 
-      <main className="adm-content">
-
-        {/* ── Page header ────────────────── */}
-        <header className="adm-page-header">
+      <main className="min-w-0 flex-1 p-4 sm:p-8">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="adm-page-header__title">👥 User Management</h1>
-            <p className="adm-page-header__sub">
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+              👥 User Management
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
               {users.length} registered user{users.length !== 1 ? 's' : ''} in the system
             </p>
           </div>
-          <div className="adm-page-header__actions">
-            <button className="btn btn--ghost" onClick={fetchUsers} title="Refresh">
-              🔄 Refresh
-            </button>
-          </div>
+          <Button variant="outline" onClick={fetchUsers} title="Refresh">
+            🔄 Refresh
+          </Button>
         </header>
 
-        {/* ── Search bar ─────────────────── */}
-        <div className="adm-search-bar">
-          <span className="adm-search-bar__icon">🔍</span>
+        <div className="mt-5 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <span className="text-slate-400">🔍</span>
           <input
             id="user-search"
             type="text"
             placeholder="Search by name or email…"
-            className="adm-search-bar__input"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           {search && (
             <button
-              className="adm-search-bar__clear"
+              className="rounded-lg px-2 py-1 text-slate-400 hover:bg-slate-100 hover:text-slate-900"
               onClick={() => setSearch('')}
               aria-label="Clear search"
             >
@@ -147,81 +147,88 @@ export default function AdminUsersPage() {
           )}
         </div>
 
-        {/* Result count */}
         {!loading && (
-          <p className="adm-results-count">
-            Showing <strong>{filtered.length}</strong> of {users.length} users
+          <p className="mt-3 text-sm text-slate-500">
+            Showing <span className="font-extrabold text-slate-900">{filtered.length}</span> of{' '}
+            {users.length} users
           </p>
         )}
 
-        {/* ── Content ────────────────────── */}
         {loading ? (
-          <div className="skeleton-list">
-            {[1, 2, 3, 4].map((i) => <div key={i} className="skeleton-item" />)}
+          <div className="mt-5 space-y-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-20 animate-pulse rounded-2xl border border-slate-200 bg-slate-100" />
+            ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="empty-state">
-            <span className="empty-state__icon">👥</span>
-            <h3>No users found</h3>
-            <p>Try a different search term.</p>
-          </div>
+          <Card className="mt-5">
+            <CardBody className="py-12 text-center">
+              <div className="text-3xl">👥</div>
+              <h3 className="mt-2 text-base font-extrabold text-slate-900">No users found</h3>
+              <p className="mt-1 text-sm text-slate-600">Try a different search term.</p>
+            </CardBody>
+          </Card>
         ) : (
-          <div className="adm-table-wrapper">
-            <table className="adm-table" aria-label="Users table">
-              <thead>
+          <div className="mt-5 overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <table className="min-w-[900px] w-full text-left text-sm" aria-label="Users table">
+              <thead className="bg-slate-50 text-[11px] font-extrabold uppercase tracking-widest text-slate-500">
                 <tr>
-                  <th>User</th>
-                  <th>Email</th>
-                  <th>Auth Provider</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Joined</th>
-                  <th>Actions</th>
+                  <th className="px-4 py-4">User</th>
+                  <th className="px-4 py-4">Email</th>
+                  <th className="px-4 py-4">Auth Provider</th>
+                  <th className="px-4 py-4">Role</th>
+                  <th className="px-4 py-4">Status</th>
+                  <th className="px-4 py-4">Joined</th>
+                  <th className="px-4 py-4">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {filtered.map((u) => {
-                  const roleStyle   = ROLE_STYLES[u.role] || ROLE_STYLES.USER;
-                  const isSelf      = u.id === currentUser?.id;
-                  const isUpdating  = updatingId === u.id;
+                  const roleStyle = ROLE_STYLES[u.role] || ROLE_STYLES.USER;
+                  const isSelf = u.id === currentUser?.id;
+                  const isUpdating = updatingId === u.id;
 
                   return (
                     <tr
                       key={u.id}
                       id={`user-row-${u.id}`}
-                      className={`adm-table__row
-                        ${isSelf       ? 'adm-table__row--self'     : ''}
-                        ${!u.active    ? 'adm-table__row--inactive'  : ''}`}
+                      className={[
+                        'transition',
+                        !u.active ? 'opacity-70' : '',
+                        isSelf ? 'bg-indigo-50/40' : 'hover:bg-slate-50',
+                      ].join(' ')}
                     >
-                      {/* Avatar + name */}
-                      <td>
-                        <div className="adm-user-cell">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
                           <img
-                            src={u.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&size=40`}
+                            src={
+                              u.profilePicture ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                u.name
+                              )}&size=40`
+                            }
                             alt={u.name}
-                            className="adm-user-cell__avatar"
+                            className="h-10 w-10 rounded-full border border-slate-200 object-cover"
                           />
-                          <div>
-                            <p className="adm-user-cell__name">{u.name}</p>
-                            {isSelf && <span className="adm-user-cell__you">(You)</span>}
+                          <div className="min-w-0">
+                            <p className="truncate font-extrabold text-slate-900">{u.name}</p>
+                            {isSelf && <p className="text-xs font-semibold text-indigo-600">(You)</p>}
                           </div>
                         </div>
                       </td>
 
-                      <td className="adm-table__cell-email">{u.email}</td>
+                      <td className="px-4 py-4 text-slate-600">{u.email}</td>
 
-                      {/* Auth provider */}
-                      <td>
-                        <span className="adm-provider-badge">
+                      <td className="px-4 py-4">
+                        <Badge>
                           {u.authProvider === 'GOOGLE' ? '🔑 Google' : u.authProvider}
-                        </span>
+                        </Badge>
                       </td>
 
-                      {/* Role badge + dropdown */}
-                      <td>
-                        <div className="adm-role-cell">
+                      <td className="px-4 py-4">
+                        <div className="flex flex-col items-start gap-2">
                           <span
-                            className="role-badge"
+                            className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-extrabold tracking-wider"
                             style={{ background: roleStyle.bg, color: roleStyle.text }}
                           >
                             {u.role}
@@ -229,40 +236,41 @@ export default function AdminUsersPage() {
                           {!isSelf && (
                             <select
                               id={`role-select-${u.id}`}
-                              className="adm-role-select"
+                              className="h-9 rounded-lg border border-slate-300 bg-white px-2 text-xs font-bold text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                               value={u.role}
                               disabled={isUpdating}
                               onChange={(e) => handleRoleChange(u.id, e.target.value, u.name)}
                             >
                               {ROLES.map((r) => (
-                                <option key={r} value={r}>{r}</option>
+                                <option key={r} value={r}>
+                                  {r}
+                                </option>
                               ))}
                             </select>
                           )}
                         </div>
                       </td>
 
-                      {/* Active status */}
-                      <td>
-                        <span className={`status-badge ${u.active ? 'status-badge--active' : 'status-badge--inactive'}`}>
+                      <td className="px-4 py-4">
+                        <Badge variant={u.active ? 'success' : 'neutral'}>
                           {u.active ? '● Active' : '○ Inactive'}
-                        </span>
+                        </Badge>
                       </td>
 
-                      {/* Joined date */}
-                      <td className="adm-table__cell-time">{formatDate(u.createdAt)}</td>
+                      <td className="px-4 py-4 text-slate-500">{formatDate(u.createdAt)}</td>
 
-                      {/* Actions */}
-                      <td>
+                      <td className="px-4 py-4">
                         {!isSelf && (
-                          <button
+                          <Button
                             id={`toggle-active-${u.id}`}
-                            className={`btn btn--sm ${u.active ? 'btn--danger-ghost' : 'btn--success-ghost'}`}
+                            variant={u.active ? 'outline' : 'primary'}
+                            size="sm"
                             disabled={isUpdating}
                             onClick={() => handleToggleActive(u.id, u.name, u.active)}
+                            className={u.active ? 'border-red-300 text-red-700 hover:bg-red-50' : ''}
                           >
                             {isUpdating ? '…' : u.active ? 'Deactivate' : 'Activate'}
-                          </button>
+                          </Button>
                         )}
                       </td>
                     </tr>
@@ -273,8 +281,8 @@ export default function AdminUsersPage() {
           </div>
         )}
 
-        <footer className="adm-footer">
-          Smart Campus Admin Panel &nbsp;·&nbsp; User Management
+        <footer className="mt-10 text-center text-xs font-semibold text-slate-400">
+          Smart Campus Admin Panel · User Management
         </footer>
       </main>
     </div>

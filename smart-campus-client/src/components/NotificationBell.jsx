@@ -15,10 +15,10 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="notif-bell-wrapper">
+    <div className="relative">
       <button
         id="notification-bell-btn"
-        className="notif-bell"
+        className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
         onClick={() => setOpen((prev) => !prev)}
         aria-label="Notifications"
         title="Notifications"
@@ -32,7 +32,7 @@ export default function NotificationBell() {
 
         {/* Unread count badge */}
         {unreadCount > 0 && (
-          <span className="notif-bell__badge">
+          <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-extrabold text-white ring-2 ring-white">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}

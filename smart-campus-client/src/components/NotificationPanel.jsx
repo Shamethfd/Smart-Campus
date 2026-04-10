@@ -17,6 +17,7 @@ import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useNotifications } from '../hooks/useNotifications';
 import { formatDistanceToNow } from '../utils/dateUtils';
+import Button from './ui/Button';
 
 // Notification type → emoji icon map
 const TYPE_ICONS = {
@@ -44,25 +45,28 @@ export default function NotificationPanel({ onClose }) {
   const recent = notifications.slice(0, 8);
 
   return (
-    <div className="notif-panel" ref={panelRef}>
+    <div
+      className="absolute right-0 top-12 w-[22rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl"
+      ref={panelRef}
+    >
       {/* Header */}
-      <div className="notif-panel__header">
-        <h3 className="notif-panel__title">Notifications</h3>
+      <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
+        <h3 className="text-sm font-extrabold text-slate-900">Notifications</h3>
         {notifications.some((n) => !n.isRead) && (
-          <button className="notif-panel__mark-all" onClick={markAllAsRead}>
+          <Button variant="ghost" size="sm" onClick={markAllAsRead} className="h-8 px-2">
             Mark all read
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Notification list */}
-      <div className="notif-panel__body">
-        {loading && <p className="notif-panel__empty">Loading…</p>}
+      <div className="max-h-[70vh] overflow-auto">
+        {loading && <p className="p-6 text-center text-sm text-slate-500">Loading…</p>}
 
         {!loading && recent.length === 0 && (
-          <div className="notif-panel__empty">
-            <span className="notif-panel__empty-icon">🔕</span>
-            <p>No notifications yet</p>
+          <div className="p-8 text-center text-slate-600">
+            <div className="text-3xl">🔕</div>
+            <p className="mt-2 text-sm font-semibold">No notifications yet</p>
           </div>
         )}
 
@@ -70,24 +74,31 @@ export default function NotificationPanel({ onClose }) {
           recent.map((n) => (
             <div
               key={n.id}
-              className={`notif-item ${!n.isRead ? 'notif-item--unread' : ''}`}
+              className={[
+                'flex gap-3 border-b border-slate-100 px-4 py-3 transition',
+                !n.isRead ? 'bg-blue-50/50' : 'bg-white',
+              ].join(' ')}
             >
-              <span className="notif-item__icon">{TYPE_ICONS[n.type] || '🔔'}</span>
+              <span className="pt-0.5 text-lg">{TYPE_ICONS[n.type] || '🔔'}</span>
 
               <div
-                className="notif-item__content"
+                className="min-w-0 flex-1"
                 onClick={() => !n.isRead && markAsRead(n.id)}
-                style={{ cursor: n.isRead ? 'default' : 'pointer' }}
+                role={!n.isRead ? 'button' : undefined}
+                tabIndex={!n.isRead ? 0 : -1}
+                onKeyDown={(e) => {
+                  if (!n.isRead && (e.key === 'Enter' || e.key === ' ')) markAsRead(n.id);
+                }}
               >
-                <p className="notif-item__title">{n.title}</p>
-                <p className="notif-item__msg">{n.message}</p>
-                <span className="notif-item__time">
+                <p className="truncate text-sm font-bold text-slate-900">{n.title}</p>
+                <p className="mt-0.5 text-sm text-slate-600">{n.message}</p>
+                <span className="mt-1 block text-xs text-slate-400">
                   {formatDistanceToNow(n.createdAt)}
                 </span>
               </div>
 
               <button
-                className="notif-item__delete"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-700"
                 onClick={(e) => { e.stopPropagation(); deleteNotification(n.id); }}
                 title="Delete"
               >
@@ -98,8 +109,12 @@ export default function NotificationPanel({ onClose }) {
       </div>
 
       {/* Footer */}
-      <div className="notif-panel__footer">
-        <Link to="/notifications" className="notif-panel__view-all" onClick={onClose}>
+      <div className="border-t border-slate-200 bg-slate-50 px-4 py-3 text-center">
+        <Link
+          to="/notifications"
+          className="text-sm font-semibold text-blue-700 hover:underline"
+          onClick={onClose}
+        >
           View all notifications →
         </Link>
       </div>

@@ -15,6 +15,8 @@ import { useAuth } from '../hooks/useAuth';
 import { credentialLogin } from '../services/authApi';
 import { saveToken } from '../utils/tokenUtils';
 import toast from 'react-hot-toast';
+import Button from '../components/ui/Button';
+import Card, { CardBody } from '../components/ui/Card';
 
 export default function LoginPage() {
   const { isAuthenticated } = useAuth();
@@ -71,132 +73,96 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      {/* Background decorative blobs */}
-      <div className="login-page__blob login-page__blob--1" />
-      <div className="login-page__blob login-page__blob--2" />
+    <div className="relative min-h-dvh overflow-hidden bg-slate-50">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] rounded-full bg-blue-300/40 blur-3xl" />
+      <div className="pointer-events-none absolute -left-28 bottom-[-120px] h-[420px] w-[420px] rounded-full bg-fuchsia-300/40 blur-3xl" />
 
-      <div className="login-card">
-        {/* Logo */}
-        <div className="login-card__logo">
-          <span className="login-card__logo-icon">🏛️</span>
-        </div>
+      <div className="mx-auto flex min-h-dvh w-full max-w-lg items-center px-4 py-10">
+        <Card className="w-full overflow-hidden">
+          <CardBody className="p-8">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-2xl shadow-md">
+              🏛️
+            </div>
 
-        {/* Heading */}
-        <h1 className="login-card__title">Smart Campus</h1>
-        <p className="login-card__subtitle">Operations Hub</p>
-        <p className="login-card__desc">
-          Sign in with your university Google account to access the campus management system.
-        </p>
-
-        {/* Divider */}
-        <div className="login-card__divider">
-          <span>Continue with</span>
-        </div>
-
-        {/* Google Login Button */}
-        <div className="login-card__google-btn">
-          <button 
-            type="button" 
-            className="google-button" 
-            onClick={handleGoogleLogin}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              padding: '12px 16px',
-              backgroundColor: '#4285F4',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '16px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-            }}
-          >
-            <svg style={{ width: 18, height: 18, marginRight: 8, fill: 'currentColor' }} viewBox="0 0 24 24">
-               <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"></path>
-            </svg>
-            Sign in with Google
-          </button>
-        </div>
-
-        {/* Admin Login Toggle Button underneath the Google Button */}
-        <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '16px' }}>
-          <button 
-             onClick={() => setShowAdmin(!showAdmin)}
-             style={{ 
-               background: 'none', 
-               border: 'none', 
-               color: '#6366f1', 
-               fontSize: '13px', 
-               fontWeight: '600', 
-               cursor: 'pointer',
-               textDecoration: 'underline'
-             }}>
-            {showAdmin ? 'Hide Admin Login' : 'System Administrator Login'}
-          </button>
-        </div>
-
-        {/* Admin Secret Login Form */}
-        {showAdmin && (
-          <form onSubmit={handleAdminLogin} style={{ 
-            marginTop: '16px', 
-            padding: '16px', 
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
-            textAlign: 'left'
-          }}>
-            <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
-              Admin Access
+            <h1 className="mt-5 text-center text-2xl font-extrabold tracking-tight text-slate-900">
+              Smart Campus
+            </h1>
+            <p className="mt-1 text-center text-sm font-semibold text-primary">
+              Operations Hub
             </p>
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Email</label>
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                required
-              />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Password</label>
-              <input 
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                required
-              />
-            </div>
-            <button 
-              type="submit" 
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '8px',
-                background: '#4f46e5',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1
-              }}
-            >
-              {loading ? 'Authenticating...' : 'Sign In as Admin'}
-            </button>
-          </form>
-        )}
+            <p className="mt-4 text-center text-sm text-slate-600">
+              Sign in with your university Google account to access the campus management system.
+            </p>
 
-        {/* Footer note */}
-        <p className="login-card__note" style={{ marginTop: '24px' }}>
-          🔒 Secured with OAuth 2.0 & JWT · IT3030 PAF Assignment 2026
-        </p>
+            <div className="my-6 flex items-center gap-3 text-xs font-extrabold tracking-widest text-slate-400">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span>CONTINUE WITH</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              onClick={handleGoogleLogin}
+              className="w-full bg-[#4285F4] hover:bg-[#3976da]"
+            >
+              <svg className="h-[18px] w-[18px] fill-current" viewBox="0 0 24 24">
+                <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"></path>
+              </svg>
+              Sign in with Google
+            </Button>
+
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setShowAdmin(!showAdmin)}
+                className="text-xs font-bold text-indigo-600 underline-offset-4 hover:underline"
+              >
+                {showAdmin ? 'Hide Admin Login' : 'System Administrator Login'}
+              </button>
+            </div>
+
+            {showAdmin && (
+              <form
+                onSubmit={handleAdminLogin}
+                className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left"
+              >
+                <p className="mb-3 text-sm font-extrabold text-slate-700">Admin Access</p>
+                <div className="mb-3">
+                  <label className="mb-1 block text-xs font-bold text-slate-500">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="mb-1 block text-xs font-bold text-slate-500">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    required
+                  />
+                </div>
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading ? 'Authenticating…' : 'Sign In as Admin'}
+                </Button>
+              </form>
+            )}
+
+            <p className="mt-6 text-center text-xs font-semibold text-slate-400">
+              🔒 Secured with OAuth 2.0 & JWT · IT3030 PAF Assignment 2026
+            </p>
+          </CardBody>
+        </Card>
       </div>
     </div>
   );

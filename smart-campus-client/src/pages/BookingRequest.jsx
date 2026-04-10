@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bookingAPI from '../services/bookingAPI';
+import Button from '../components/ui/Button';
+import Card, { CardBody, CardHeader } from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
 
 const RESOURCE_TYPES = [
   {
@@ -102,226 +105,197 @@ export default function BookingRequest() {
   };
 
   return (
-    <div className="dashboard">
-      <div className="booking-page">
-        <div className="booking-page__grid">
-          <aside className="booking-page__aside">
-            <div className="booking-hero">
-              <span className="booking-hero__badge">
-                <span className="booking-hero__dot" aria-hidden />
-                New booking
-              </span>
-              <h1>Book a resource</h1>
-              <p>
-                Fill in the details below. Your request will be reviewed by an admin before confirmation.
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
+        <aside className="space-y-4">
+          <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-blue-700 to-blue-500 p-6 text-white shadow-card">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-extrabold tracking-widest">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-200" />
+              NEW BOOKING
+            </div>
+            <h1 className="mt-3 text-xl font-extrabold tracking-tight">Book a resource</h1>
+            <p className="mt-2 text-sm text-white/90">
+              Fill in the details below. Your request will be reviewed by an admin before confirmation.
+            </p>
+          </div>
+
+          <Card>
+            <CardBody>
+              <p className="text-[11px] font-extrabold tracking-widest text-slate-400">
+                HOW IT WORKS
               </p>
-            </div>
-
-            <div className="booking-card">
-              <p className="booking-steps__title">How it works</p>
-              {STEPS.map((step, idx) => (
-                <div key={step.num} className="booking-step">
-                  <div className="booking-step__rail">
-                    <span className="booking-step__num">{step.num}</span>
-                    {idx < STEPS.length - 1 && <span className="booking-step__line" aria-hidden />}
+              <div className="mt-4 space-y-4">
+                {STEPS.map((step) => (
+                  <div key={step.num} className="flex gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-extrabold text-white">
+                      {step.num}
+                    </div>
+                    <div className="pt-0.5">
+                      <div className="text-sm font-extrabold text-slate-900">{step.label}</div>
+                      <div className="text-xs text-slate-500">{step.desc}</div>
+                    </div>
                   </div>
-                  <div className="booking-step__body">
-                    <strong>{step.label}</strong>
-                    <span>{step.desc}</span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+
+          <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-700">
+            Approved bookings can be cancelled from your <span className="font-extrabold">dashboard</span> at any time.
+          </div>
+        </aside>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-base font-extrabold text-slate-900">Booking details</h2>
+                <p className="mt-1 text-sm text-slate-500">All fields marked with * are required.</p>
+              </div>
+              <Badge variant="info">Request</Badge>
             </div>
+          </CardHeader>
+          <CardBody>
+            {message.text && (
+              <div
+                className={[
+                  'mb-5 rounded-2xl border px-4 py-3 text-sm font-semibold',
+                  message.type === 'success'
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                    : 'border-red-200 bg-red-50 text-red-800',
+                ].join(' ')}
+                role="status"
+              >
+                {message.text}
+              </div>
+            )}
 
-            <div className="booking-tip">
-              Approved bookings can be cancelled from your <strong>dashboard</strong> at any time.
-            </div>
-          </aside>
-
-          <div className="booking-panel">
-            <div className="booking-panel__header">
-              <h2>Booking details</h2>
-              <p>All fields marked with * are required.</p>
-            </div>
-
-            <div className="booking-panel__body">
-              {message.text && (
-                <div
-                  className={`booking-alert ${
-                    message.type === 'success' ? 'booking-alert--success' : 'booking-alert--error'
-                  }`}
-                  role="status"
-                >
-                  {message.text}
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit}>
-                <fieldset style={{ border: 'none', margin: 0, padding: 0 }}>
-                  <legend className="booking-field-label">
-                    Resource type <span className="req">*</span>
-                  </legend>
-                  <div className="booking-type-grid">
-                    {RESOURCE_TYPES.map((rt) => (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <fieldset className="space-y-3">
+                <legend className="text-xs font-extrabold uppercase tracking-widest text-slate-500">
+                  Resource type <span className="text-red-500">*</span>
+                </legend>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  {RESOURCE_TYPES.map((rt) => {
+                    const active = formData.resourceType === rt.value;
+                    return (
                       <label
                         key={rt.value}
-                        className={`booking-type-option ${
-                          formData.resourceType === rt.value ? 'booking-type-option--active' : ''
-                        }`}
+                        className={[
+                          'relative cursor-pointer rounded-2xl border p-4 text-center transition',
+                          active
+                            ? 'border-blue-500 bg-blue-50 text-blue-800'
+                            : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-white',
+                        ].join(' ')}
                       >
                         <input
                           type="radio"
                           name="resourceType"
                           value={rt.value}
-                          checked={formData.resourceType === rt.value}
+                          checked={active}
                           onChange={handleInputChange}
+                          className="sr-only"
                         />
-                        {formData.resourceType === rt.value && (
-                          <span className="booking-type-option__check" aria-hidden>
+                        {active && (
+                          <span className="absolute right-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-extrabold text-white">
                             ✓
                           </span>
                         )}
-                        <span className="booking-type-option__icon">{rt.icon}</span>
-                        <span className="booking-type-option__label">{rt.label}</span>
+                        <span className="mx-auto block h-6 w-6 text-current">{rt.icon}</span>
+                        <span className="mt-2 block text-xs font-extrabold uppercase tracking-wider">
+                          {rt.label}
+                        </span>
                       </label>
-                    ))}
-                  </div>
-                </fieldset>
-
-                <div className="booking-divider" />
-
-                <div className="booking-grid-2">
-                  <FormField label="Resource ID" required>
-                    <input
-                      type="text"
-                      name="resourceId"
-                      value={formData.resourceId}
-                      onChange={handleInputChange}
-                      placeholder="e.g. R-101"
-                      required
-                      className="booking-input"
-                    />
-                  </FormField>
-                  <FormField label="Resource name" required>
-                    <input
-                      type="text"
-                      name="resourceName"
-                      value={formData.resourceName}
-                      onChange={handleInputChange}
-                      placeholder="e.g. Conference Room A"
-                      required
-                      className="booking-input"
-                    />
-                  </FormField>
+                    );
+                  })}
                 </div>
+              </fieldset>
 
-                <div className="booking-divider" />
-
-                <p className="booking-schedule-title">
-                  Schedule <span className="req">*</span>
-                </p>
-                <div className="booking-grid-3">
-                  <FormField label="Booking date">
-                    <div className="booking-input-wrap">
-                      <span className="booking-input-icon" aria-hidden>
-                        <svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"
-                          />
-                        </svg>
-                      </span>
-                      <input
-                        type="date"
-                        name="bookingDate"
-                        value={formData.bookingDate}
-                        onChange={handleInputChange}
-                        required
-                        className="booking-input booking-input--icon"
-                      />
-                    </div>
-                  </FormField>
-                  <FormField label="Start time">
-                    <div className="booking-input-wrap">
-                      <span className="booking-input-icon" aria-hidden>
-                        <svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </span>
-                      <input
-                        type="time"
-                        name="startTime"
-                        value={formData.startTime}
-                        onChange={handleInputChange}
-                        required
-                        className="booking-input booking-input--icon"
-                      />
-                    </div>
-                  </FormField>
-                  <FormField label="End time">
-                    <div className="booking-input-wrap">
-                      <span className="booking-input-icon" aria-hidden>
-                        <svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </span>
-                      <input
-                        type="time"
-                        name="endTime"
-                        value={formData.endTime}
-                        onChange={handleInputChange}
-                        required
-                        className="booking-input booking-input--icon"
-                      />
-                    </div>
-                  </FormField>
-                </div>
-
-                <div className="booking-divider" />
-
-                <FormField label="Additional notes" hint="Optional">
-                  <textarea
-                    name="notes"
-                    value={formData.notes}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField label="Resource ID" required>
+                  <input
+                    type="text"
+                    name="resourceId"
+                    value={formData.resourceId}
                     onChange={handleInputChange}
-                    rows={4}
-                    placeholder="Any extra information for the admin…"
-                    className="booking-textarea"
+                    placeholder="e.g. R-101"
+                    required
+                    className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </FormField>
+                <FormField label="Resource name" required>
+                  <input
+                    type="text"
+                    name="resourceName"
+                    value={formData.resourceName}
+                    onChange={handleInputChange}
+                    placeholder="e.g. Conference Room A"
+                    required
+                    className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </FormField>
+              </div>
 
-                <div className="booking-actions">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="btn btn-booking-submit"
-                  >
-                    {loading ? (
-                      <>
-                        <span className="booking-spinner" style={{ marginRight: 8 }} />
-                        Submitting…
-                      </>
-                    ) : (
-                      'Submit request'
-                    )}
-                  </button>
-                  <button type="button" className="btn btn--ghost" onClick={handleReset}>
-                    Reset
-                  </button>
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-widest text-slate-500">
+                  Schedule <span className="text-red-500">*</span>
+                </p>
+                <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <FormField label="Booking date" required>
+                    <input
+                      type="date"
+                      name="bookingDate"
+                      value={formData.bookingDate}
+                      onChange={handleInputChange}
+                      required
+                      className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </FormField>
+                  <FormField label="Start time" required>
+                    <input
+                      type="time"
+                      name="startTime"
+                      value={formData.startTime}
+                      onChange={handleInputChange}
+                      required
+                      className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </FormField>
+                  <FormField label="End time" required>
+                    <input
+                      type="time"
+                      name="endTime"
+                      value={formData.endTime}
+                      onChange={handleInputChange}
+                      required
+                      className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </FormField>
                 </div>
-              </form>
-            </div>
-          </div>
-        </div>
+              </div>
+
+              <FormField label="Additional notes" hint="Optional">
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  rows={4}
+                  placeholder="Any extra information for the admin…"
+                  className="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                />
+              </FormField>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                <Button type="button" variant="outline" onClick={handleReset}>
+                  Reset
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Submitting…' : 'Submit request'}
+                </Button>
+              </div>
+            </form>
+          </CardBody>
+        </Card>
       </div>
     </div>
   );
@@ -330,10 +304,10 @@ export default function BookingRequest() {
 function FormField({ label, required, hint, children }) {
   return (
     <div>
-      <label className="booking-field-label">
-        {label}
-        {required && <span className="req">*</span>}
-        {hint && <span className="hint">{hint}</span>}
+      <label className="mb-2 flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-slate-500">
+        <span>{label}</span>
+        {required && <span className="text-red-500">*</span>}
+        {hint && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-slate-500">{hint}</span>}
       </label>
       {children}
     </div>

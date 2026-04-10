@@ -14,8 +14,9 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import Badge from './ui/Badge';
 
-const ROLE_COLORS = { ADMIN: '#ef4444', TECHNICIAN: '#f59e0b', USER: '#10b981' };
+const ROLE_VARIANT = { ADMIN: 'danger', TECHNICIAN: 'warning', USER: 'success' };
 
 const NAV_ITEMS = [
   { icon: '📊', label: 'Dashboard',          path: '/admin/dashboard' },
@@ -33,14 +34,17 @@ export default function Sidebar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
-
-      {/* ── Brand header ──────────────────── */}
-      <div className="sidebar__brand">
-        <span className="sidebar__brand-icon">🏛️</span>
-        {!collapsed && <span className="sidebar__brand-name">Smart Campus</span>}
+    <aside
+      className={[
+        'sticky top-0 flex h-dvh flex-col border-r border-slate-200 bg-gradient-to-b from-slate-950 via-indigo-950 to-indigo-700 text-white',
+        collapsed ? 'w-[76px]' : 'w-[270px]',
+      ].join(' ')}
+    >
+      <div className="flex items-center gap-3 border-b border-white/10 px-4 py-4">
+        <span className="text-2xl">🏛️</span>
+        {!collapsed && <span className="flex-1 font-extrabold">Smart Campus</span>}
         <button
-          className="sidebar__toggle"
+          className="rounded-lg px-2 py-1 text-white/70 transition hover:bg-white/10 hover:text-white"
           onClick={() => setCollapsed((c) => !c)}
           title={collapsed ? 'Expand' : 'Collapse'}
           aria-label="Toggle sidebar"
@@ -49,63 +53,66 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* ── Admin label ───────────────────── */}
       {!collapsed && (
-        <p className="sidebar__section-label">ADMIN PANEL</p>
+        <p className="px-4 py-3 text-[11px] font-extrabold tracking-widest text-white/45">
+          ADMIN PANEL
+        </p>
       )}
 
-      {/* ── Navigation links ──────────────── */}
-      <nav className="sidebar__nav" aria-label="Admin navigation">
+      <nav className="flex flex-col gap-1 px-3" aria-label="Admin navigation">
         {NAV_ITEMS.map((item) => (
           <div key={item.path}>
-            {item.divider && <div className="sidebar__divider" />}
+            {item.divider && <div className="my-3 h-px bg-white/10" />}
             <Link
               to={item.path}
-              className={`sidebar__link ${isActive(item.path) ? 'sidebar__link--active' : ''}`}
+              className={[
+                'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-white/70 transition',
+                isActive(item.path) ? 'bg-white/15 text-white' : 'hover:bg-white/10 hover:text-white',
+              ].join(' ')}
               title={collapsed ? item.label : undefined}
             >
-              <span className="sidebar__link-icon">{item.icon}</span>
-              {!collapsed && <span className="sidebar__link-label">{item.label}</span>}
+              <span className="text-lg">{item.icon}</span>
+              {!collapsed && <span className="flex-1">{item.label}</span>}
             </Link>
           </div>
         ))}
       </nav>
 
-      <div style={{ flex: 1 }} />
+      <div className="flex-1" />
 
-      {/* ── User card ─────────────────────── */}
-      <div className="sidebar__user">
-        <img
-          src={
-            user?.profilePicture ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'A')}&background=6366f1&color=fff&size=40`
-          }
-          alt={user?.name}
-          className="sidebar__user-avatar"
-        />
-        {!collapsed && (
-          <div className="sidebar__user-info">
-            <p className="sidebar__user-name" title={user?.name}>
-              {user?.name?.split(' ')[0]}
-            </p>
-            <span
-              className="sidebar__role-badge"
-              style={{ background: ROLE_COLORS[user?.role] }}
+      <div className="border-t border-white/10 px-4 py-4">
+        <div className="flex items-center gap-3">
+          <img
+            src={
+              user?.profilePicture ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                user?.name || 'A'
+              )}&background=6366f1&color=fff&size=40`
+            }
+            alt={user?.name}
+            className="h-10 w-10 rounded-full border border-white/20 object-cover"
+          />
+          {!collapsed && (
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold" title={user?.name}>
+                {user?.name?.split(' ')[0]}
+              </p>
+              <Badge variant={ROLE_VARIANT[user?.role] ?? 'neutral'} className="mt-1">
+                {user?.role}
+              </Badge>
+            </div>
+          )}
+          {!collapsed && (
+            <button
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-white/70 transition hover:bg-red-500/20 hover:text-white"
+              onClick={logout}
+              title="Logout"
+              aria-label="Logout"
             >
-              {user?.role}
-            </span>
-          </div>
-        )}
-        {!collapsed && (
-          <button
-            className="sidebar__logout-btn"
-            onClick={logout}
-            title="Logout"
-            aria-label="Logout"
-          >
-            ↪
-          </button>
-        )}
+              ↪
+            </button>
+          )}
+        </div>
       </div>
     </aside>
   );

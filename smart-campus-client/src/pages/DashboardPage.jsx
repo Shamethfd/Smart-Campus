@@ -10,6 +10,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
 import { Link } from 'react-router-dom';
 import { formatDate } from '../utils/dateUtils';
+import Card, { CardBody } from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
 
 const TYPE_ICONS = { BOOKING: '🗓️', TICKET: '🎫', COMMENT: '💬', SYSTEM: '🔔' };
 const TYPE_COLORS = { BOOKING: '#6366f1', TICKET: '#f59e0b', COMMENT: '#10b981', SYSTEM: '#64748b' };
@@ -21,108 +23,164 @@ export default function DashboardPage() {
   const recentNotifs = notifications.slice(0, 5);
 
   return (
-    <div className="dashboard">
-      {/* Welcome banner */}
-      <div className="dashboard__banner">
-        <div className="dashboard__banner-text">
-          <h1 className="dashboard__welcome">
-            Welcome back, <span>{user?.name?.split(' ')[0]}</span> 👋
-          </h1>
-          <p className="dashboard__subtitle">
-            {isAdmin
-              ? 'You have full administrator access to the Smart Campus system.'
-              : 'Access your bookings, tickets, and campus resources below.'}
-          </p>
-        </div>
-        <img
-          src={user?.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&size=80`}
-          alt="User Avatar"
-          className="dashboard__avatar"
-        />
-      </div>
-
-      {/* Stats row */}
-      <div className="dashboard__stats">
-        <div className="stat-card stat-card--blue">
-          <span className="stat-card__icon">🔔</span>
+    <div className="space-y-8">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-indigo-700 to-blue-600 p-8 text-white shadow-card">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="stat-card__value">{unreadCount}</p>
-            <p className="stat-card__label">Unread Notifications</p>
+            <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+              Welcome back, <span>{user?.name?.split(' ')[0]}</span> <span aria-hidden>👋</span>
+            </h1>
+            <p className="mt-2 max-w-2xl text-white/90">
+              {isAdmin
+                ? 'You have full administrator access to the Smart Campus system.'
+                : 'Access your bookings, tickets, and campus resources below.'}
+            </p>
           </div>
-        </div>
-        <div className="stat-card stat-card--green">
-          <span className="stat-card__icon">👤</span>
-          <div>
-            <p className="stat-card__value">{user?.role}</p>
-            <p className="stat-card__label">Your Role</p>
-          </div>
-        </div>
-        <div className="stat-card stat-card--purple">
-          <span className="stat-card__icon">🔒</span>
-          <div>
-            <p className="stat-card__value">OAuth 2.0</p>
-            <p className="stat-card__label">Auth Provider</p>
-          </div>
+          <img
+            src={
+              user?.profilePicture ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                user?.name || 'U'
+              )}&size=80`
+            }
+            alt="User Avatar"
+            className="h-20 w-20 rounded-full border-4 border-white/20 object-cover"
+          />
         </div>
       </div>
 
-      {/* Quick actions */}
-      <div className="dashboard__section">
-        <h2 className="dashboard__section-title">Quick Actions</h2>
-        <div className="dashboard__actions">
-          <Link to="/notifications" className="action-card action-card--violet">
-            <span>🔔</span>
-            <span>My Notifications</span>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <Card>
+          <CardBody className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-xl text-indigo-700">
+              🔔
+            </div>
+            <div>
+              <div className="text-2xl font-extrabold text-slate-900">{unreadCount}</div>
+              <div className="text-sm font-semibold text-slate-500">Unread Notifications</div>
+            </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-xl text-emerald-700">
+              👤
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="text-lg font-extrabold text-slate-900">{user?.role}</div>
+                <Badge variant={isAdmin ? 'danger' : 'success'}>
+                  {isAdmin ? 'ADMIN' : 'USER'}
+                </Badge>
+              </div>
+              <div className="text-sm font-semibold text-slate-500">Your Role</div>
+            </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-50 text-xl text-fuchsia-700">
+              🔒
+            </div>
+            <div>
+              <div className="text-lg font-extrabold text-slate-900">OAuth 2.0</div>
+              <div className="text-sm font-semibold text-slate-500">Auth Provider</div>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      <section>
+        <h2 className="text-lg font-extrabold text-slate-900">Quick Actions</h2>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Link
+            to="/notifications"
+            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <div className="text-2xl">🔔</div>
+            <div className="mt-3 font-extrabold text-slate-900">My Notifications</div>
+            <div className="mt-1 text-sm text-slate-500">View and manage updates</div>
           </Link>
           {isAdmin && (
-            <Link to="/admin/users" className="action-card action-card--red">
-              <span>👥</span>
-              <span>Manage Users</span>
+            <Link
+              to="/admin/users"
+              className="group rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <div className="text-2xl">👥</div>
+              <div className="mt-3 font-extrabold text-slate-900">Manage Users</div>
+              <div className="mt-1 text-sm text-slate-600">Roles and access control</div>
             </Link>
           )}
-          <Link to="/booking" className="action-card action-card--teal">
-            <span>🗓️</span>
-            <span>Booking</span>
+          <Link
+            to="/booking"
+            className="group rounded-2xl border border-blue-200 bg-blue-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <div className="text-2xl">🗓️</div>
+            <div className="mt-3 font-extrabold text-slate-900">Booking</div>
+            <div className="mt-1 text-sm text-slate-600">Request rooms / labs / equipment</div>
           </Link>
-          <div className="action-card action-card--amber" style={{ cursor: 'default' }}>
-            <span>🎫</span>
-            <span>Support Tickets</span>
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 opacity-70">
+            <div className="text-2xl">🎫</div>
+            <div className="mt-3 font-extrabold text-slate-900">Support Tickets</div>
+            <div className="mt-1 text-sm text-slate-600">Coming soon</div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Recent notifications preview */}
-      <div className="dashboard__section">
-        <div className="dashboard__section-header">
-          <h2 className="dashboard__section-title">Recent Notifications</h2>
-          <Link to="/notifications" className="dashboard__see-all">See all →</Link>
+      <section>
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="text-lg font-extrabold text-slate-900">Recent Notifications</h2>
+          <Link to="/notifications" className="text-sm font-bold text-blue-700 hover:underline">
+            See all →
+          </Link>
         </div>
 
-        {recentNotifs.length === 0 ? (
-          <div className="empty-state">
-            <span className="empty-state__icon">🔕</span>
-            <p>No notifications yet. You're all caught up!</p>
-          </div>
-        ) : (
-          <div className="dashboard__notif-list">
-            {recentNotifs.map((n) => (
-              <div key={n.id} className={`dashboard__notif-item ${!n.isRead ? 'dashboard__notif-item--unread' : ''}`}>
-                <span
-                  className="dashboard__notif-icon"
-                  style={{ backgroundColor: TYPE_COLORS[n.type] + '20', color: TYPE_COLORS[n.type] }}
+        <div className="mt-4">
+          {recentNotifs.length === 0 ? (
+            <Card>
+              <CardBody className="py-10 text-center">
+                <div className="text-3xl">🔕</div>
+                <p className="mt-2 text-sm font-semibold text-slate-600">
+                  No notifications yet. You're all caught up!
+                </p>
+              </CardBody>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {recentNotifs.map((n) => (
+                <div
+                  key={n.id}
+                  className={[
+                    'flex items-center gap-4 rounded-2xl border p-4 shadow-sm transition',
+                    !n.isRead
+                      ? 'border-indigo-200 bg-indigo-50'
+                      : 'border-slate-200 bg-white',
+                  ].join(' ')}
                 >
-                  {TYPE_ICONS[n.type]}
-                </span>
-                <div className="dashboard__notif-body">
-                  <p className="dashboard__notif-title">{n.title}</p>
-                  <p className="dashboard__notif-msg">{n.message}</p>
+                  <div
+                    className="flex h-11 w-11 items-center justify-center rounded-2xl text-lg"
+                    style={{
+                      backgroundColor: TYPE_COLORS[n.type] + '20',
+                      color: TYPE_COLORS[n.type],
+                    }}
+                  >
+                    {TYPE_ICONS[n.type]}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-extrabold text-slate-900">
+                      {n.title}
+                    </p>
+                    <p className="truncate text-sm text-slate-600">{n.message}</p>
+                  </div>
+                  <span className="shrink-0 text-xs font-semibold text-slate-400">
+                    {formatDate(n.createdAt)}
+                  </span>
                 </div>
-                <span className="dashboard__notif-date">{formatDate(n.createdAt)}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

@@ -37,9 +37,9 @@ function MainLayout() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="app-container">
+    <div className="min-h-dvh bg-slate-50 text-slate-900">
       {isAuthenticated && <Navbar />}
-      <main className="app-main">
+      <main className={isAuthenticated ? 'mx-auto w-full max-w-6xl px-4 pb-10 pt-24' : 'min-h-dvh'}>
         <Outlet />
       </main>
     </div>

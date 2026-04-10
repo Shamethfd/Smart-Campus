@@ -5,21 +5,37 @@
 
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import Button from '../components/ui/Button';
+import Card, { CardBody } from '../components/ui/Card';
 
 export default function UnauthorizedPage() {
   const { user } = useAuth();
   return (
-    <div className="error-page">
-      <div className="error-page__card">
-        <span className="error-page__icon">🚫</span>
-        <h1 className="error-page__code">403</h1>
-        <h2 className="error-page__title">Access Denied</h2>
-        <p className="error-page__msg">
-          You don't have permission to view this page.
-          {user && ` Your current role is <strong>${user.role}</strong>.`}
-        </p>
-        <Link to="/dashboard" className="btn btn--primary">← Back to Dashboard</Link>
-      </div>
+    <div className="flex min-h-[60vh] items-center justify-center px-4">
+      <Card className="w-full max-w-md">
+        <CardBody className="py-10 text-center">
+          <div className="text-4xl">🚫</div>
+          <div className="mt-2 text-5xl font-extrabold tracking-tight text-red-600">
+            403
+          </div>
+          <h1 className="mt-3 text-xl font-extrabold text-slate-900">
+            Access Denied
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            You don't have permission to view this page.
+            {user ? (
+              <>
+                {' '}
+                Your current role is{' '}
+                <span className="font-extrabold">{user.role}</span>.
+              </>
+            ) : null}
+          </p>
+          <Button as={Link} to="/dashboard" className="mt-6">
+            ← Back to Dashboard
+          </Button>
+        </CardBody>
+      </Card>
     </div>
   );
 }

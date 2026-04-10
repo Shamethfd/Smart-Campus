@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import StatCard from '../components/StatCard';
 import bookingAPI from '../services/bookingAPI';
+import Button from '../components/ui/Button';
+import Card, { CardBody } from '../components/ui/Card';
 
 const STATUSES = ['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'];
 
@@ -100,25 +102,25 @@ export default function AdminPanel() {
   };
 
   return (
-    <div className="adm-layout">
+    <div className="flex min-h-dvh bg-slate-50">
       <Sidebar />
 
-      <main className="adm-content">
-        <header className="adm-page-header">
+      <main className="min-w-0 flex-1 p-4 sm:p-8">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="adm-page-header__title">🗓️ Booking management</h1>
-            <p className="adm-page-header__sub">
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+              🗓️ Booking management
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
               Review incoming booking requests and keep resource usage under control.
             </p>
           </div>
-          <div className="adm-page-header__actions">
-            <button type="button" className="btn btn--ghost" onClick={fetchBookings} title="Refresh list">
-              🔄 Refresh
-            </button>
-          </div>
+          <Button type="button" variant="outline" onClick={fetchBookings} title="Refresh list">
+            🔄 Refresh
+          </Button>
         </header>
 
-        <section className="adm-stats" aria-label="Booking statistics">
+        <section className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="Booking statistics">
           <StatCard icon="📋" label="Total" value={stats.total} color="#1e3a8a" loading={loading} />
           <StatCard icon="⏳" label="Pending" value={stats.pending} color="#d97706" loading={loading} />
           <StatCard icon="✅" label="Approved" value={stats.approved} color="#059669" loading={loading} />
@@ -128,16 +130,12 @@ export default function AdminPanel() {
         {message.text && (
           <div
             role="status"
-            style={{
-              marginBottom: 'var(--spacing-4)',
-              padding: 'var(--spacing-3) var(--spacing-4)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid',
-              borderColor: message.type === 'success' ? '#a7f3d0' : '#fecaca',
-              background: message.type === 'success' ? '#ecfdf5' : '#fef2f2',
-              color: message.type === 'success' ? '#047857' : '#b91c1c',
-              fontSize: '0.875rem',
-            }}
+            className={[
+              'mt-5 rounded-2xl border px-4 py-3 text-sm font-semibold',
+              message.type === 'success'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                : 'border-red-200 bg-red-50 text-red-800',
+            ].join(' ')}
           >
             {message.text}
           </div>
@@ -146,112 +144,112 @@ export default function AdminPanel() {
         {error && (
           <div
             role="alert"
-            style={{
-              marginBottom: 'var(--spacing-4)',
-              padding: 'var(--spacing-3) var(--spacing-4)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid #fecaca',
-              background: '#fef2f2',
-              color: '#b91c1c',
-              fontSize: '0.875rem',
-            }}
+            className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"
           >
             {error}
           </div>
         )}
 
-        <div style={{ marginBottom: 'var(--spacing-4)' }}>
-          <p className="adm-results-count">Filter by status</p>
-          <div className="adm-filter-tabs" role="tablist" aria-label="Booking status filters">
-            {STATUSES.map((status) => (
-              <button
-                key={status}
-                type="button"
-                role="tab"
-                aria-selected={filter === status}
-                className={`adm-filter-tab ${filter === status ? 'adm-filter-tab--active' : ''}`}
-                onClick={() => setFilter(status)}
-              >
-                {status}
-              </button>
-            ))}
+        <div className="mt-6">
+          <p className="text-sm font-semibold text-slate-500">Filter by status</p>
+          <div className="mt-3 flex gap-2 overflow-auto pb-1" role="tablist" aria-label="Booking status filters">
+            {STATUSES.map((status) => {
+              const active = filter === status;
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  className={[
+                    'shrink-0 rounded-full border px-4 py-2 text-sm font-bold transition',
+                    active
+                      ? 'border-slate-900 bg-slate-900 text-white'
+                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                  ].join(' ')}
+                  onClick={() => setFilter(status)}
+                >
+                  {status}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="adm-table-wrapper">
+        <div className="mt-5 overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
           {!loading && filteredBookings.length === 0 ? (
-            <div className="empty-state" style={{ border: 'none', boxShadow: 'none' }}>
-              <span className="empty-state__icon">🗓️</span>
-              <h3>No bookings</h3>
-              <p>No bookings for the selected filter.</p>
-            </div>
+            <Card className="border-0 shadow-none">
+              <CardBody className="py-12 text-center">
+                <div className="text-3xl">🗓️</div>
+                <h3 className="mt-2 text-base font-extrabold text-slate-900">No bookings</h3>
+                <p className="mt-1 text-sm text-slate-600">No bookings for the selected filter.</p>
+              </CardBody>
+            </Card>
           ) : loading ? (
-            <div style={{ padding: 'var(--spacing-8)', textAlign: 'center', color: 'var(--gray-500)' }}>
+            <div className="p-10 text-center text-sm font-semibold text-slate-500">
               Loading bookings…
             </div>
           ) : (
-            <table className="adm-table">
-              <thead>
+            <table className="min-w-[920px] w-full text-left text-sm">
+              <thead className="bg-slate-50 text-[11px] font-extrabold uppercase tracking-widest text-slate-500">
                 <tr>
                   {['User', 'Resource', 'Date', 'Time', 'Status', 'Actions'].map((col) => (
-                    <th key={col}>{col}</th>
+                    <th key={col} className="px-4 py-4">
+                      {col}
+                    </th>
                   ))}
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {filteredBookings.map((booking) => {
                   const st = booking.status || 'CANCELLED';
                   const badge = STATUS_BADGE_STYLE[st] || STATUS_BADGE_STYLE.CANCELLED;
                   return (
-                    <tr key={booking.id} className="adm-table__row">
-                      <td>
-                        <p className="adm-table__cell-title">{booking.userName || '—'}</p>
-                        <p className="adm-table__cell-email" style={{ fontSize: '0.75rem', marginTop: 4 }}>
-                          {booking.userId || ''}
-                        </p>
+                    <tr key={booking.id} className="hover:bg-slate-50">
+                      <td className="px-4 py-4">
+                        <p className="font-extrabold text-slate-900">{booking.userName || '—'}</p>
+                        <p className="mt-1 text-xs text-slate-500">{booking.userId || ''}</p>
                       </td>
-                      <td>
-                        <p className="adm-table__cell-title">{booking.resourceName || '—'}</p>
-                        <p className="adm-table__cell-msg" style={{ fontSize: '0.75rem', marginTop: 4 }}>
-                          {booking.resourceType || ''}
-                        </p>
+                      <td className="px-4 py-4">
+                        <p className="font-extrabold text-slate-900">{booking.resourceName || '—'}</p>
+                        <p className="mt-1 text-xs text-slate-500">{booking.resourceType || ''}</p>
                       </td>
-                      <td className="adm-table__cell-time">{formatDate(booking.bookingDate)}</td>
-                      <td className="adm-table__cell-time">
+                      <td className="px-4 py-4 text-slate-600">{formatDate(booking.bookingDate)}</td>
+                      <td className="px-4 py-4 text-slate-600">
                         {formatTime(booking.startTime)} – {formatTime(booking.endTime)}
                       </td>
-                      <td>
+                      <td className="px-4 py-4">
                         <span
-                          className="adm-type-badge"
-                          style={{
-                            background: badge.bg,
-                            color: badge.color,
-                            border: `1px solid ${badge.border}`,
-                          }}
+                          className="inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-extrabold tracking-wider"
+                          style={{ background: badge.bg, color: badge.color, borderColor: badge.border }}
                         >
                           {st}
                         </span>
                       </td>
-                      <td>
+                      <td className="px-4 py-4">
                         {booking.status === 'PENDING' ? (
-                          <div className="adm-table__actions">
-                            <button
+                          <div className="flex flex-wrap gap-2">
+                            <Button
                               type="button"
-                              className="btn btn--sm btn--success-ghost"
+                              variant="outline"
+                              size="sm"
+                              className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
                               onClick={() => setSelectedAction({ type: 'approve', id: booking.id })}
                             >
                               Approve
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               type="button"
-                              className="btn btn--sm btn--danger-ghost"
+                              variant="outline"
+                              size="sm"
+                              className="border-red-300 text-red-700 hover:bg-red-50"
                               onClick={() => setSelectedAction({ type: 'reject', id: booking.id })}
                             >
                               Reject
-                            </button>
+                            </Button>
                           </div>
                         ) : (
-                          <span style={{ fontSize: '0.8rem', color: 'var(--gray-400)' }}>—</span>
+                          <span className="text-sm font-semibold text-slate-400">—</span>
                         )}
                       </td>
                     </tr>
@@ -262,50 +260,25 @@ export default function AdminPanel() {
           )}
         </div>
 
-        <footer className="adm-footer">Smart Campus Admin Panel · Booking management</footer>
+        <footer className="mt-10 text-center text-xs font-semibold text-slate-400">
+          Smart Campus Admin Panel · Booking management
+        </footer>
 
         {selectedAction && (
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="booking-modal-title"
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 60,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(15, 23, 42, 0.45)',
-              padding: 'var(--spacing-4)',
-            }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4"
           >
-            <div
-              style={{
-                width: '100%',
-                maxWidth: 440,
-                background: '#fff',
-                borderRadius: 'var(--radius-lg)',
-                boxShadow: 'var(--shadow-lg)',
-                border: '1px solid var(--gray-200)',
-                padding: 'var(--spacing-6)',
-              }}
-            >
-              <h2
-                id="booking-modal-title"
-                style={{
-                  fontSize: '1.05rem',
-                  fontWeight: 700,
-                  color: 'var(--gray-900)',
-                  marginBottom: 'var(--spacing-2)',
-                }}
-              >
+            <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
+              <h2 id="booking-modal-title" className="text-base font-extrabold text-slate-900">
                 {selectedAction.type === 'approve' ? 'Approve booking' : 'Reject booking'}
               </h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginBottom: 'var(--spacing-4)' }}>
+              <p className="mt-2 text-sm text-slate-500">
                 Optionally add a short note for the requester.
               </p>
-              <label htmlFor="admin-notes" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: 6 }}>
+              <label htmlFor="admin-notes" className="mt-4 block text-sm font-bold text-slate-700">
                 Admin notes
               </label>
               <textarea
@@ -313,52 +286,30 @@ export default function AdminPanel() {
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows={4}
-                style={{
-                  width: '100%',
-                  padding: 'var(--spacing-3)',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--gray-300)',
-                  fontFamily: 'inherit',
-                  fontSize: '0.875rem',
-                  resize: 'vertical',
-                }}
+                className="mt-2 w-full resize-y rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 placeholder="Short explanation (optional)"
               />
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 'var(--spacing-3)',
-                  marginTop: 'var(--spacing-4)',
-                }}
-              >
-                <button
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Button
                   type="button"
-                  className={
-                    selectedAction.type === 'approve' ? 'btn btn--primary' : 'btn btn--danger-ghost'
-                  }
-                  style={
-                    selectedAction.type === 'reject'
-                      ? { background: '#dc2626', color: '#fff', borderColor: '#dc2626' }
-                      : {}
-                  }
+                  variant={selectedAction.type === 'approve' ? 'primary' : 'danger'}
                   onClick={() => {
                     if (selectedAction.type === 'approve') handleApprove(selectedAction.id);
                     else handleReject(selectedAction.id);
                   }}
                 >
                   {selectedAction.type === 'approve' ? 'Confirm approval' : 'Confirm rejection'}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="btn btn--ghost"
+                  variant="outline"
                   onClick={() => {
                     setSelectedAction(null);
                     setAdminNotes('');
                   }}
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           </div>
