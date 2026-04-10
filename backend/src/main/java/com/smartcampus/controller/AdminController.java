@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/smart-admin")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(originPatterns = {"http://localhost:*", "http://127.0.0.1:*"})

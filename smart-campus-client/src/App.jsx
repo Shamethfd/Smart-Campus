@@ -6,7 +6,7 @@ import Home from './pages/Home';
 import ResourceList from './pages/ResourceList';
 import ResourceDetail from './pages/ResourceDetail';
 import ResourceForm from './pages/ResourceForm';
-import AdminDashboard from './pages/AdminDashboard';
+import SmartAdminDashboard from './pages/SmartAdminDashboard';
 import CompareResources from './pages/CompareResources';
 import QRScanner from './pages/QRScanner';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -36,9 +36,9 @@ function App() {
                 <ResourceForm />
               </ProtectedRoute>
             } />
-            <Route path="/admin/dashboard" element={
+            <Route path="/smart-admin/dashboard" element={
               <ProtectedRoute adminOnly>
-                <AdminDashboard />
+                <SmartAdminDashboard />
               </ProtectedRoute>
             } />
           </Routes>
