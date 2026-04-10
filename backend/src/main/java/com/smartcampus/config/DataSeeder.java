@@ -5,6 +5,7 @@ import com.smartcampus.model.User;
 import com.smartcampus.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,7 @@ public class DataSeeder {
     private static final Logger logger = LoggerFactory.getLogger(DataSeeder.class);
 
     @Bean
+    @ConditionalOnProperty(name = "app.seed.enabled", havingValue = "true")
     public CommandLineRunner seedData(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             // Seed or Update ADMIN user

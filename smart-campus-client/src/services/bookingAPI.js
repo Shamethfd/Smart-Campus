@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken } from '../utils/tokenUtils';
 
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+const BASE = 'http://localhost:8081';
 
 const apiClient = axios.create({
   baseURL: `${BASE}/api/v1/bookings`,
@@ -42,3 +42,7 @@ export const bookingAPI = {
 };
 
 export default bookingAPI;
+
+
+
+

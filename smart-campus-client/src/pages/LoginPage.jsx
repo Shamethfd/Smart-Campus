@@ -62,7 +62,7 @@ export default function LoginPage() {
           Object.values(data.fieldErrors).filter(Boolean).join(' '));
       const hint =
         err.code === 'ERR_NETWORK' || err.message === 'Network Error'
-          ? 'Cannot reach API. Is the backend running on port 8081, and VITE_API_URL correct?'
+          ? 'Cannot reach API. Is the backend running on port 8081?'
           : '';
       toast.error(apiMsg || hint || 'Login failed. Invalid credentials.');
     } finally {
@@ -201,3 +201,8 @@ export default function LoginPage() {
     </div>
   );
 }
+
+
+
+
+

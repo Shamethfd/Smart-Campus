@@ -8,7 +8,7 @@
 import axios from 'axios';
 import { getToken } from '../utils/tokenUtils';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+const BASE_URL = 'http://localhost:8081';
 
 // Axios instance with base URL and default headers
 const api = axios.create({
@@ -52,3 +52,7 @@ export const credentialLogin = async (email, password) => {
   const response = await api.post('/api/auth/login', { email, password });
   return response.data; // { success, message, data: { token } }
 };
+
+
+
+

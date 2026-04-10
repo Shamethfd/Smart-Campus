@@ -34,5 +34,12 @@ build/
 
 backend/src/main/resources/application.properties
 
-spring.data.mongodb.uri=${MONGO_URI}
-google.client.secret=${GOOGLE_SECRET}
+### Environment Variables ###
+.env
+.env.local
+.env.*.local
+*.env
+
+### Generated Local Data ###
+backend/data/
+backend/package-lock.json

@@ -9,3 +9,7 @@ export const createTicket = (ticket) => axios.post(`${API_URL}/tickets`, ticket)
 export const getNotifications = (email) => axios.get(`${API_URL}/notifications?email=${email}`);
 
 export default API_URL;
+
+
+
+

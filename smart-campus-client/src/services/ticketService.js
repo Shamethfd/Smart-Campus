@@ -48,3 +48,7 @@ export const markAsRead = (id) =>
 
 export const markAllAsRead = (email) =>
   axios.put(`${API_URL}/notifications/read-all?email=${encodeURIComponent(email)}`);
+
+
+
+

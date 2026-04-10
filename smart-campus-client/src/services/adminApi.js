@@ -13,7 +13,7 @@
 import axios from 'axios';
 import { getToken } from '../utils/tokenUtils';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+const BASE_URL = 'http://localhost:8081';
 
 const api = axios.create({ baseURL: BASE_URL });
 
@@ -65,3 +65,7 @@ export const adminGetUnreadCount = async () => {
   const res = await api.get('/api/notifications/unread-count');
   return res.data;
 };
+
+
+
+
