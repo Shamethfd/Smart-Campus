@@ -4,14 +4,33 @@ import { getMyNotifications, getUnreadCount, markAsRead, markAllAsRead } from ".
 const PRIMARY = "#094886";
 const SECONDARY = "#2563eb";
 
+<<<<<<< HEAD
 // Now accepts email as a prop (passed from App.jsx after login) — no more prompt()
 export default function NotificationBell({ email }) {
+=======
+// Simple user email — in production this would come from auth context.
+// For now we prompt once and store in sessionStorage, matching the app's no-auth pattern.
+function getUserEmail() {
+  let email = sessionStorage.getItem("userEmail");
+  if (!email) {
+    email = prompt("Enter your email to see notifications:") || "";
+    if (email) sessionStorage.setItem("userEmail", email);
+  }
+  return email;
+}
+
+export default function NotificationBell() {
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
   const fetchData = async () => {
+<<<<<<< HEAD
+=======
+    const email = getUserEmail();
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
     if (!email) return;
     try {
       const [notifRes, countRes] = await Promise.all([
@@ -19,6 +38,10 @@ export default function NotificationBell({ email }) {
         getUnreadCount(email),
       ]);
       setNotifications(notifRes.data);
+<<<<<<< HEAD
+=======
+      // Backend returns { count: N }
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
       setUnreadCount(countRes.data.count ?? countRes.data);
     } catch (err) {
       console.error("Notification fetch error:", err);
@@ -29,7 +52,11 @@ export default function NotificationBell({ email }) {
     fetchData();
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
+<<<<<<< HEAD
   }, [email]);
+=======
+  }, []);
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -45,6 +72,10 @@ export default function NotificationBell({ email }) {
   };
 
   const handleMarkAllRead = async () => {
+<<<<<<< HEAD
+=======
+    const email = getUserEmail();
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
     if (email) await markAllAsRead(email);
     fetchData();
   };

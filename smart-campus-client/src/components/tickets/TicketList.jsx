@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { getAllTickets, getMyTickets, deleteTicket } from "../../services/ticketService";
+=======
+import { getAllTickets, deleteTicket } from "../../services/ticketService";
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
 const PRIMARY = "#094886";
 const SECONDARY = "#2563eb";
@@ -19,18 +23,26 @@ const priorityConfig = {
   CRITICAL: { color: "#7c3aed", bg: "#f5f3ff" },
 };
 
+<<<<<<< HEAD
 // role: "user" | "admin"
 export default function TicketList({ onViewTicket, role, userEmail }) {
+=======
+export default function TicketList({ onViewTicket }) {
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
 
   const fetchTickets = async () => {
     try {
+<<<<<<< HEAD
       // Users only see their own tickets; admins see all
       const res = role === "admin"
         ? await getAllTickets()
         : await getMyTickets(userEmail);
+=======
+      const res = await getAllTickets();
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
       setTickets(res.data);
     } catch (err) {
       console.error("Failed to fetch tickets:", err);
@@ -39,7 +51,11 @@ export default function TicketList({ onViewTicket, role, userEmail }) {
     }
   };
 
+<<<<<<< HEAD
   useEffect(() => { fetchTickets(); }, [role, userEmail]);
+=======
+  useEffect(() => { fetchTickets(); }, []);
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
   const handleDelete = async (id) => {
     if (window.confirm("Delete this ticket?")) {
@@ -63,12 +79,18 @@ export default function TicketList({ onViewTicket, role, userEmail }) {
         background: `linear-gradient(135deg, ${PRIMARY}, ${SECONDARY})`,
         borderRadius: "16px", padding: "24px 28px", marginBottom: "24px", color: "white",
       }}>
+<<<<<<< HEAD
         <h2 style={{ margin: 0, fontSize: "22px" }}>
           {role === "admin" ? "🛡 All Tickets" : "🗂 My Tickets"}
         </h2>
         <p style={{ margin: "4px 0 0 0", opacity: 0.8, fontSize: "13px" }}>
           {tickets.length} ticket{tickets.length !== 1 ? "s" : ""} total
           {role === "user" && ` for ${userEmail}`}
+=======
+        <h2 style={{ margin: 0, fontSize: "22px" }}>🗂 All Tickets</h2>
+        <p style={{ margin: "4px 0 0 0", opacity: 0.8, fontSize: "13px" }}>
+          {tickets.length} ticket{tickets.length !== 1 ? "s" : ""} total
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
         </p>
       </div>
 
@@ -89,7 +111,10 @@ export default function TicketList({ onViewTicket, role, userEmail }) {
         <div style={{ textAlign: "center", padding: "60px", color: "#94a3b8", background: "white", borderRadius: "16px" }}>
           <div style={{ fontSize: "40px" }}>📭</div>
           <div>No tickets found.</div>
+<<<<<<< HEAD
           {role === "user" && <div style={{ fontSize: "13px", marginTop: "8px" }}>Submit a new ticket using the ➕ button above.</div>}
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
         </div>
       ) : (
         filtered.map((ticket) => {
@@ -108,8 +133,12 @@ export default function TicketList({ onViewTicket, role, userEmail }) {
                   <h3 style={{ margin: "0 0 8px 0", color: PRIMARY, fontSize: "16px" }}>{ticket.title}</h3>
                   <div style={{ fontSize: "13px", color: "#64748b", marginBottom: "10px" }}>
                     📍 {ticket.location} · 🏷 {ticket.category}
+<<<<<<< HEAD
                     {role === "admin" && ticket.reportedBy && <> · 👤 {ticket.reportedBy}</>}
                     {ticket.assignedTo && <> · 👷 {ticket.assignedTo}</>}
+=======
+                    {ticket.reportedBy && <> · 👤 {ticket.reportedBy}</>}
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
                   </div>
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                     <span style={{ background: sc.bg, color: sc.color, padding: "3px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "700" }}>
@@ -123,11 +152,14 @@ export default function TicketList({ onViewTicket, role, userEmail }) {
                         💬 {ticket.comments.length}
                       </span>
                     )}
+<<<<<<< HEAD
                     {ticket.imageUrls?.length > 0 && (
                       <span style={{ color: "#94a3b8", fontSize: "12px", padding: "3px 0" }}>
                         📷 {ticket.imageUrls.length}
                       </span>
                     )}
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: "8px", marginLeft: "16px" }}>
@@ -137,6 +169,7 @@ export default function TicketList({ onViewTicket, role, userEmail }) {
                     color: "white", border: "none", borderRadius: "8px",
                     cursor: "pointer", fontSize: "13px", fontWeight: "600",
                   }}>View</button>
+<<<<<<< HEAD
                   {/* Delete only shown to admin or owner */}
                   {(role === "admin" || ticket.reportedBy === userEmail) && (
                     <button onClick={() => handleDelete(ticket.id)} style={{
@@ -145,6 +178,13 @@ export default function TicketList({ onViewTicket, role, userEmail }) {
                       cursor: "pointer", fontSize: "13px", fontWeight: "600",
                     }}>Delete</button>
                   )}
+=======
+                  <button onClick={() => handleDelete(ticket.id)} style={{
+                    padding: "7px 16px", background: "#fef2f2", color: "#dc2626",
+                    border: "1px solid #fecaca", borderRadius: "8px",
+                    cursor: "pointer", fontSize: "13px", fontWeight: "600",
+                  }}>Delete</button>
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
                 </div>
               </div>
               <div style={{ fontSize: "11px", color: "#cbd5e1", marginTop: "10px" }}>
@@ -156,4 +196,8 @@ export default function TicketList({ onViewTicket, role, userEmail }) {
       )}
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373

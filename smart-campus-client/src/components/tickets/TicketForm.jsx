@@ -1,25 +1,38 @@
+<<<<<<< HEAD
 import { useState, useRef } from "react";
 import { createTicket, uploadTicketImages } from "../../services/ticketService";
+=======
+import { useState } from "react";
+import { createTicket } from "../../services/ticketService";
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
 const PRIMARY = "#094886";
 const SECONDARY = "#2563eb";
 
 const inputStyle = {
+<<<<<<< HEAD
   width: "100%", padding: "10px 12px", marginBottom: "4px",
+=======
+  width: "100%", padding: "10px 12px", marginBottom: "14px",
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
   border: "1.5px solid #d1d5db", borderRadius: "8px",
   fontSize: "14px", boxSizing: "border-box", outline: "none",
 };
 
+<<<<<<< HEAD
 const inputErrorStyle = {
   ...inputStyle,
   border: "1.5px solid #dc2626",
 };
 
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 const labelStyle = {
   display: "block", fontSize: "13px",
   fontWeight: "600", color: PRIMARY, marginBottom: "4px",
 };
 
+<<<<<<< HEAD
 const errorMsgStyle = {
   color: "#dc2626", fontSize: "12px", marginBottom: "10px", marginTop: "2px",
 };
@@ -104,16 +117,45 @@ export default function TicketForm({ onSuccess, userEmail }) {
       } else {
         setError("Failed to create ticket. Make sure the backend is running.");
       }
+=======
+export default function TicketForm({ onSuccess }) {
+  const [form, setForm] = useState({
+    title: "", description: "", category: "IT",
+    priority: "MEDIUM", location: "", preferredContact: "",
+    reportedBy: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess(false);
+    try {
+      await createTicket(form);
+      setSuccess(true);
+      setForm({ title: "", description: "", category: "IT", priority: "MEDIUM", location: "", preferredContact: "", reportedBy: "" });
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      setError("Failed to create ticket. Make sure the backend is running.");
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
     } finally {
       setLoading(false);
     }
   };
 
+<<<<<<< HEAD
   const field = (name) => ({
     style: touched[name] && errors[name] ? inputErrorStyle : inputStyle,
     onBlur: handleBlur,
   });
 
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
   return (
     <div style={{
       maxWidth: "620px", margin: "0 auto", padding: "32px",
@@ -137,6 +179,7 @@ export default function TicketForm({ onSuccess, userEmail }) {
           ⚠️ {error}
         </div>
       )}
+<<<<<<< HEAD
 
       <form onSubmit={handleSubmit} noValidate>
         <label style={labelStyle}>Your Email *</label>
@@ -154,6 +197,27 @@ export default function TicketForm({ onSuccess, userEmail }) {
           placeholder="Detailed description (min 10 characters)..." rows={4}
           {...field("description")} style={{ ...(touched.description && errors.description ? inputErrorStyle : inputStyle), resize: "vertical", marginBottom: "4px" }} />
         {touched.description && errors.description && <div style={errorMsgStyle}>{errors.description}</div>}
+=======
+      {success && (
+        <div style={{ background: "#f0fdf4", color: "#16a34a", padding: "10px 14px", borderRadius: "8px", marginBottom: "16px", fontSize: "13px" }}>
+          ✅ Ticket submitted successfully!
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <label style={labelStyle}>Your Email *</label>
+        <input name="reportedBy" value={form.reportedBy} onChange={handleChange} required
+          placeholder="your@email.com" style={inputStyle} type="email" />
+
+        <label style={labelStyle}>Title *</label>
+        <input name="title" value={form.title} onChange={handleChange} required
+          placeholder="Short description of the issue" style={inputStyle} />
+
+        <label style={labelStyle}>Description *</label>
+        <textarea name="description" value={form.description} onChange={handleChange} required
+          placeholder="Detailed description..." rows={4}
+          style={{ ...inputStyle, resize: "vertical" }} />
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
           <div>
@@ -178,14 +242,20 @@ export default function TicketForm({ onSuccess, userEmail }) {
         </div>
 
         <label style={labelStyle}>Location *</label>
+<<<<<<< HEAD
         <input name="location" value={form.location} onChange={handleChange}
           placeholder="e.g. Lab 3, Block A" {...field("location")} />
         {touched.location && errors.location && <div style={errorMsgStyle}>{errors.location}</div>}
+=======
+        <input name="location" value={form.location} onChange={handleChange} required
+          placeholder="e.g. Lab 3, Block A" style={inputStyle} />
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
         <label style={labelStyle}>Preferred Contact</label>
         <input name="preferredContact" value={form.preferredContact} onChange={handleChange}
           placeholder="Phone or email" style={inputStyle} />
 
+<<<<<<< HEAD
         {/* Image Upload — up to 3 photos */}
         <label style={{ ...labelStyle, marginTop: "6px" }}>📷 Attach Photos (up to 3)</label>
         <div style={{
@@ -238,6 +308,8 @@ export default function TicketForm({ onSuccess, userEmail }) {
           </div>
         )}
 
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
         <button type="submit" disabled={loading} style={{
           width: "100%", padding: "13px",
           background: loading ? "#93c5fd" : `linear-gradient(135deg, ${PRIMARY}, ${SECONDARY})`,
@@ -251,4 +323,8 @@ export default function TicketForm({ onSuccess, userEmail }) {
       </form>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373

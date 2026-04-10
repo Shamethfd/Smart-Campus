@@ -8,6 +8,7 @@ const PRIMARY = "#094886";
 const SECONDARY = "#2563eb";
 
 export default function App() {
+<<<<<<< HEAD
   const [page, setPage] = useState("list");
   const [selectedTicketId, setSelectedTicketId] = useState(null);
 
@@ -33,6 +34,11 @@ export default function App() {
     setSelectedTicketId(null);
   };
 
+=======
+  const [page, setPage] = useState("list"); // "list" | "create" | "detail"
+  const [selectedTicketId, setSelectedTicketId] = useState(null);
+
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
   const handleViewTicket = (id) => {
     setSelectedTicketId(id);
     setPage("detail");
@@ -43,6 +49,7 @@ export default function App() {
     setPage("list");
   };
 
+<<<<<<< HEAD
   // Login screen
   if (!loggedIn) {
     return (
@@ -118,6 +125,11 @@ export default function App() {
       </div>
     );
   }
+=======
+  const handleCreated = () => {
+    setPage("list");
+  };
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
   return (
     <div style={{ minHeight: "100vh", background: "#f1f5f9", fontFamily: "'Segoe UI', sans-serif" }}>
@@ -138,7 +150,11 @@ export default function App() {
               background: page === "list" ? "rgba(255,255,255,0.2)" : "transparent",
               border: "none", color: "white", padding: "8px 16px",
               borderRadius: "8px", cursor: "pointer", fontSize: "14px", fontWeight: "600",
+<<<<<<< HEAD
             }}>🗂 {role === "admin" ? "All Tickets" : "My Tickets"}</button>
+=======
+            }}>🗂 Tickets</button>
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
             <button onClick={() => setPage("create")} style={{
               background: page === "create" ? "rgba(255,255,255,0.2)" : "transparent",
               border: "none", color: "white", padding: "8px 16px",
@@ -146,6 +162,7 @@ export default function App() {
             }}>➕ New Ticket</button>
           </div>
         </div>
+<<<<<<< HEAD
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{
             background: role === "admin" ? "rgba(255,215,0,0.25)" : "rgba(255,255,255,0.15)",
@@ -162,11 +179,15 @@ export default function App() {
             cursor: "pointer", fontSize: "13px",
           }}>Logout</button>
         </div>
+=======
+        <NotificationBell />
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
       </nav>
 
       {/* Page Content */}
       <main style={{ padding: "32px 16px" }}>
         {page === "list" && (
+<<<<<<< HEAD
           <TicketList
             onViewTicket={handleViewTicket}
             role={role}
@@ -183,8 +204,21 @@ export default function App() {
             role={role}
             userEmail={userEmail}
           />
+=======
+          <TicketList onViewTicket={handleViewTicket} />
+        )}
+        {page === "create" && (
+          <TicketForm onSuccess={handleCreated} />
+        )}
+        {page === "detail" && selectedTicketId && (
+          <TicketDetail ticketId={selectedTicketId} onBack={handleBack} />
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
         )}
       </main>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373

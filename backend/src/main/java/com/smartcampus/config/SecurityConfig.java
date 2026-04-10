@@ -6,11 +6,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+<<<<<<< HEAD
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
 @Configuration
 @EnableMethodSecurity
@@ -20,7 +23,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+<<<<<<< HEAD
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/**").permitAll()
@@ -31,6 +37,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+<<<<<<< HEAD
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -43,4 +50,6 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 }

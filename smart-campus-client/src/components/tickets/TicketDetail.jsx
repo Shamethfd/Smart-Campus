@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import { useState, useEffect, useRef } from "react";
 import {
   getTicketById, updateTicketStatus, addComment,
   editComment, deleteComment, assignTechnician, uploadTicketImages
+=======
+import { useState, useEffect } from "react";
+import {
+  getTicketById, updateTicketStatus, addComment,
+  editComment, deleteComment, assignTechnician
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 } from "../../services/ticketService";
 
 const PRIMARY = "#094886";
@@ -15,6 +22,7 @@ const statusConfig = {
   REJECTED:    { color: "#dc2626", bg: "#fef2f2" },
 };
 
+<<<<<<< HEAD
 // role: "user" | "admin"
 export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
   const [ticket, setTicket] = useState(null);
@@ -29,6 +37,16 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [uploadMsg, setUploadMsg] = useState("");
   const fileInputRef = useRef(null);
+=======
+export default function TicketDetail({ ticketId, onBack }) {
+  const [ticket, setTicket] = useState(null);
+  const [comment, setComment] = useState("");
+  const [authorEmail, setAuthorEmail] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editContent, setEditContent] = useState("");
+  const [techEmail, setTechEmail] = useState("");
+  const [loading, setLoading] = useState(true);
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
   const fetchTicket = async () => {
     try {
@@ -43,7 +61,10 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
 
   useEffect(() => { fetchTicket(); }, [ticketId]);
 
+<<<<<<< HEAD
   // Admin-only actions
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
   const handleStatusUpdate = async (status) => {
     const reason = status === "REJECTED" ? prompt("Rejection reason:") : null;
     const notes = status === "RESOLVED" ? prompt("Resolution notes:") : null;
@@ -51,6 +72,7 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
     fetchTicket();
   };
 
+<<<<<<< HEAD
   const handleAssign = async () => {
     if (!techEmail.trim()) {
       setTechEmailError("Please enter a technician email.");
@@ -96,31 +118,60 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
     }
     setCommentError("");
     await addComment(ticketId, comment, userEmail);
+=======
+  const handleAddComment = async () => {
+    if (!comment.trim() || !authorEmail.trim()) {
+      alert("Please enter your email and comment.");
+      return;
+    }
+    await addComment(ticketId, comment, authorEmail);
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
     setComment("");
     fetchTicket();
   };
 
   const handleEditComment = async (commentId) => {
+<<<<<<< HEAD
     if (!editContent.trim()) return;
     await editComment(ticketId, commentId, editContent, userEmail);
+=======
+    await editComment(ticketId, commentId, editContent, authorEmail);
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
     setEditingId(null);
     fetchTicket();
   };
 
   const handleDeleteComment = async (commentId) => {
     if (window.confirm("Delete this comment?")) {
+<<<<<<< HEAD
       await deleteComment(ticketId, commentId, userEmail);
+=======
+      await deleteComment(ticketId, commentId, authorEmail);
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
       fetchTicket();
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleAssign = async () => {
+    if (!techEmail.trim()) return;
+    await assignTechnician(ticketId, techEmail);
+    setTechEmail("");
+    fetchTicket();
+  };
+
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
   if (loading) return <div style={{ padding: "60px", textAlign: "center", color: PRIMARY }}>⏳ Loading...</div>;
   if (!ticket) return <div style={{ padding: "60px", textAlign: "center", color: "#dc2626" }}>❌ Ticket not found.</div>;
 
   const sc = statusConfig[ticket.status] || statusConfig.OPEN;
+<<<<<<< HEAD
   const isOwner = ticket.reportedBy === userEmail;
   const isAdmin = role === "admin";
   const remainingImages = 3 - (ticket.imageUrls?.length || 0);
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
   return (
     <div style={{ maxWidth: "720px", margin: "0 auto", padding: "24px" }}>
@@ -181,6 +232,7 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
               <p style={{ margin: "4px 0 0 0", color: "#991b1b", fontSize: "14px" }}>{ticket.rejectionReason}</p>
             </div>
           )}
+<<<<<<< HEAD
 
           {/* Image Gallery */}
           {ticket.imageUrls?.length > 0 && (
@@ -288,6 +340,43 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
           </div>
         </div>
       )}
+=======
+        </div>
+      </div>
+
+      {/* Admin Controls */}
+      <div style={{
+        background: "white", borderRadius: "16px", padding: "20px 24px",
+        marginBottom: "20px", boxShadow: "0 2px 10px rgba(9,72,134,0.08)", border: "1px solid #e2e8f0",
+      }}>
+        <h3 style={{ margin: "0 0 14px 0", color: PRIMARY, fontSize: "16px" }}>🛠 Admin Controls</h3>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+          {[
+            { s: "IN_PROGRESS", label: "Set In Progress", color: "#d97706", bg: "#fffbeb" },
+            { s: "RESOLVED", label: "Set Resolved", color: "#16a34a", bg: "#f0fdf4" },
+            { s: "CLOSED", label: "Set Closed", color: "#6b7280", bg: "#f9fafb" },
+            { s: "REJECTED", label: "Set Rejected", color: "#dc2626", bg: "#fef2f2" },
+          ].map(({ s, label, color, bg }) => (
+            <button key={s} onClick={() => handleStatusUpdate(s)} style={{
+              padding: "7px 16px", background: bg, color,
+              border: `1px solid ${color}44`, borderRadius: "8px",
+              cursor: "pointer", fontSize: "13px", fontWeight: "600",
+            }}>{label}</button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <input value={techEmail} onChange={e => setTechEmail(e.target.value)}
+            placeholder="Technician email to assign"
+            style={{ flex: 1, padding: "9px 12px", border: "1.5px solid #d1d5db", borderRadius: "8px", fontSize: "14px", outline: "none" }} />
+          <button onClick={handleAssign} style={{
+            padding: "9px 20px",
+            background: `linear-gradient(135deg, ${PRIMARY}, ${SECONDARY})`,
+            color: "white", border: "none", borderRadius: "8px",
+            cursor: "pointer", fontWeight: "600",
+          }}>Assign</button>
+        </div>
+      </div>
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
 
       {/* Comments */}
       <div style={{
@@ -331,6 +420,7 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
                   <span style={{ fontSize: "12px", color: "#94a3b8" }}>
                     👤 {c.authorEmail} · {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
                   </span>
+<<<<<<< HEAD
                   {/* Edit/Delete only for comment author or admin */}
                   {(c.authorEmail === userEmail || isAdmin) && (
                     <div style={{ display: "flex", gap: "6px" }}>
@@ -346,6 +436,18 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
                       }}>Delete</button>
                     </div>
                   )}
+=======
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <button onClick={() => { setEditingId(c.id); setEditContent(c.content); }} style={{
+                      fontSize: "12px", background: "#eff6ff", color: SECONDARY,
+                      border: "none", padding: "3px 10px", borderRadius: "4px", cursor: "pointer",
+                    }}>Edit</button>
+                    <button onClick={() => handleDeleteComment(c.id)} style={{
+                      fontSize: "12px", background: "#fef2f2", color: "#dc2626",
+                      border: "none", padding: "3px 10px", borderRadius: "4px", cursor: "pointer",
+                    }}>Delete</button>
+                  </div>
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
                 </div>
               </div>
             )}
@@ -354,6 +456,7 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
 
         {/* Add Comment */}
         <div style={{ marginTop: "12px" }}>
+<<<<<<< HEAD
           <div style={{ display: "flex", gap: "10px" }}>
             <input
               value={comment}
@@ -366,6 +469,16 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
                 borderRadius: "8px", fontSize: "14px", outline: "none",
               }}
             />
+=======
+          <input value={authorEmail} onChange={e => setAuthorEmail(e.target.value)}
+            placeholder="Your email"
+            style={{ width: "100%", padding: "9px 12px", marginBottom: "8px", border: "1.5px solid #d1d5db", borderRadius: "8px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+          <div style={{ display: "flex", gap: "10px" }}>
+            <input value={comment} onChange={e => setComment(e.target.value)}
+              placeholder="Write a comment..."
+              onKeyDown={e => e.key === "Enter" && handleAddComment()}
+              style={{ flex: 1, padding: "10px 14px", border: "1.5px solid #d1d5db", borderRadius: "8px", fontSize: "14px", outline: "none" }} />
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
             <button onClick={handleAddComment} style={{
               padding: "10px 20px",
               background: `linear-gradient(135deg, ${PRIMARY}, ${SECONDARY})`,
@@ -373,9 +486,16 @@ export default function TicketDetail({ ticketId, onBack, role, userEmail }) {
               cursor: "pointer", fontWeight: "600",
             }}>Post</button>
           </div>
+<<<<<<< HEAD
           {commentError && <div style={{ color: "#dc2626", fontSize: "12px", marginTop: "4px" }}>{commentError}</div>}
+=======
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
         </div>
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 9b434a5249957e185d72085a25e4bcdbaa60f373
