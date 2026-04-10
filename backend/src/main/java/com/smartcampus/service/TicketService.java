@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.smartcampus.exception.TicketNotFoundException;
 import com.smartcampus.model.Comment;
 import com.smartcampus.model.Ticket;
 import com.smartcampus.repository.TicketRepository;
@@ -35,9 +36,10 @@ public class TicketService {
         return ticketRepository.findByReportedBy(userEmail);
     }
 
+    // Now throws TicketNotFoundException (404) instead of RuntimeException (500)
     public Ticket getTicketById(String id) {
         return ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found: " + id));
+                .orElseThrow(() -> new TicketNotFoundException(id));
     }
 
     public Ticket updateStatus(String id, String status, String reason, String resolutionNotes) {
@@ -68,6 +70,17 @@ public class TicketService {
                 "TICKET_ASSIGNED", id
         );
         return saved;
+    }
+
+    // Add image URLs to an existing ticket (up to 3 total)
+    public Ticket addImageUrls(String id, List<String> newUrls) {
+        Ticket ticket = getTicketById(id);
+        List<String> existing = ticket.getImageUrls();
+        int available = 3 - existing.size();
+        List<String> toAdd = newUrls.subList(0, Math.min(newUrls.size(), available));
+        existing.addAll(toAdd);
+        ticket.setUpdatedAt(LocalDateTime.now());
+        return ticketRepository.save(ticket);
     }
 
     public Ticket addComment(String ticketId, String content, String authorEmail) {
@@ -104,12 +117,12 @@ public class TicketService {
         return ticketRepository.save(ticket);
     }
 
-    public Ticket deleteComment(String ticketId, String commentId, String userEmail) {
+    public void deleteComment(String ticketId, String commentId, String userEmail) {
         Ticket ticket = getTicketById(ticketId);
         ticket.getComments().removeIf(c ->
                 c.getId().equals(commentId) && c.getAuthorEmail().equals(userEmail));
         ticket.setUpdatedAt(LocalDateTime.now());
-        return ticketRepository.save(ticket);
+        ticketRepository.save(ticket);
     }
 
     public void deleteTicket(String id) {
