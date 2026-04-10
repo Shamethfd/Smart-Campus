@@ -22,5 +22,29 @@ for /f "delims== tokens=1,*" %%A in (.env.local) do (
     )
 )
 
+if "%GOOGLE_CLIENT_ID%"=="" (
+    echo ❌ GOOGLE_CLIENT_ID is missing in .env.local
+    pause
+    exit /b 1
+)
+
+if "%GOOGLE_CLIENT_SECRET%"=="" (
+    echo ❌ GOOGLE_CLIENT_SECRET is missing in .env.local
+    pause
+    exit /b 1
+)
+
+if /I "%GOOGLE_CLIENT_ID%"=="YOUR_GOOGLE_CLIENT_ID_HERE" (
+    echo ❌ GOOGLE_CLIENT_ID is still a placeholder. Update .env.local with your real Google Web client ID.
+    pause
+    exit /b 1
+)
+
+if /I "%GOOGLE_CLIENT_SECRET%"=="YOUR_GOOGLE_CLIENT_SECRET_HERE" (
+    echo ❌ GOOGLE_CLIENT_SECRET is still a placeholder. Update .env.local with your real Google client secret.
+    pause
+    exit /b 1
+)
+
 REM Run Maven Spring Boot
 mvn spring-boot:run -DskipTests
