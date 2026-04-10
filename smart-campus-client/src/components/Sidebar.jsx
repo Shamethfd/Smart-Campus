@@ -22,6 +22,7 @@ const NAV_ITEMS = [
   { icon: '📊', label: 'Dashboard',          path: '/admin/dashboard' },
   { icon: '👥', label: 'User Management',    path: '/admin/users'     },
   { icon: '🗓️', label: 'Booking Management', path: '/admin/bookings' },
+  { icon: '🎫', label: 'Ticket View',        path: '/admin/tickets'  },
   { icon: '🛠️', label: 'Resource Manage',    path: '/admin/resources' },
   { icon: '🔔', label: 'Notifications',      path: '/admin/notifications' },
   { icon: '🏠', label: 'Back to Home',       path: '/dashboard',  divider: true },

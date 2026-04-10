@@ -147,11 +147,14 @@ export default function DashboardPage() {
             <div className="mt-3 font-extrabold text-slate-900">Booking</div>
             <div className="mt-1 text-sm text-slate-600">Request rooms / labs / equipment</div>
           </Link>
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 opacity-70">
+          <Link
+            to="/tickets"
+            className="group rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
             <div className="text-2xl">🎫</div>
             <div className="mt-3 font-extrabold text-slate-900">Support Tickets</div>
-            <div className="mt-1 text-sm text-slate-600">Coming soon</div>
-          </div>
+            <div className="mt-1 text-sm text-slate-600">Report incidents and request support</div>
+          </Link>
         </div>
       </section>
 

@@ -29,10 +29,12 @@ import NotificationPage from './pages/NotificationPage';
 import ResourceList from './pages/ResourceList';
 import ResourceDetail from './pages/ResourceDetail';
 import ResourceEntryRedirect from './pages/ResourceEntryRedirect';
+import TicketPage from './pages/TicketPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminPanel from './pages/AdminPanel';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminNotificationsPage from './pages/AdminNotificationsPage';
+import AdminTicketViewPage from './pages/AdminTicketViewPage';
 import ResourceForm from './pages/ResourceForm';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import OAuth2RedirectHandler from './components/OAuth2RedirectHandler';
@@ -102,6 +104,10 @@ function App() {
               element={<AdminRoute><AdminNotificationsPage /></AdminRoute>}
             />
             <Route
+              path="/admin/tickets"
+              element={<AdminRoute><AdminTicketViewPage /></AdminRoute>}
+            />
+            <Route
               path="/admin/resources"
               element={<AdminRoute><ResourceForm /></AdminRoute>}
             />
@@ -139,6 +145,10 @@ function App() {
             <Route
               path="/resource"
               element={<ProtectedRoute><ResourceEntryRedirect /></ProtectedRoute>}
+            />
+            <Route
+              path="/tickets"
+              element={<ProtectedRoute><TicketPage /></ProtectedRoute>}
             />
 
             <Route path="/unauthorized" element={<UnauthorizedPage />} />

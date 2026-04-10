@@ -38,7 +38,13 @@ export default function TicketForm({ onSuccess }) {
       setForm({ title: "", description: "", category: "IT", priority: "MEDIUM", location: "", preferredContact: "", reportedBy: "" });
       if (onSuccess) onSuccess();
     } catch (err) {
-      setError("Failed to create ticket. Make sure the backend is running.");
+      const message =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        (err.response?.status === 401 ? "Please login again to submit a ticket." : null) ||
+        (err.code === 'ERR_NETWORK' ? 'Cannot reach backend API on port 8081.' : null) ||
+        "Failed to create ticket.";
+      setError(message);
     } finally {
       setLoading(false);
     }

@@ -1,53 +1,65 @@
 import axios from 'axios';
+import { getToken } from '../utils/tokenUtils';
 
 const API_URL = 'http://localhost:8081/api';
+const api = axios.create({
+  baseURL: API_URL,
+});
+
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 // Tickets
 export const createTicket = (ticket) =>
-  axios.post(`${API_URL}/tickets`, ticket);
+  api.post('/tickets', ticket);
 
 export const getAllTickets = () =>
-  axios.get(`${API_URL}/tickets`);
+  api.get('/tickets');
 
 export const getMyTickets = (email) =>
-  axios.get(`${API_URL}/tickets/my?email=${email}`);
+  api.get(`/tickets/my?email=${email}`);
 
 export const getTicketById = (id) =>
-  axios.get(`${API_URL}/tickets/${id}`);
+  api.get(`/tickets/${id}`);
 
 export const updateTicketStatus = (id, data) =>
-  axios.put(`${API_URL}/tickets/${id}/status`, data);
+  api.put(`/tickets/${id}/status`, data);
 
 export const assignTechnician = (id, technicianEmail) =>
-  axios.put(`${API_URL}/tickets/${id}/assign`, { technicianEmail });
+  api.put(`/tickets/${id}/assign`, { technicianEmail });
 
 export const deleteTicket = (id) =>
-  axios.delete(`${API_URL}/tickets/${id}`);
+  api.delete(`/tickets/${id}`);
 
 // Comments
 export const addComment = (ticketId, content, authorEmail) =>
-  axios.post(`${API_URL}/tickets/${ticketId}/comments`, { content, authorEmail });
+  api.post(`/tickets/${ticketId}/comments`, { content, authorEmail });
 
 // Fix: include authorEmail in body (backend uses it to verify ownership)
 export const editComment = (ticketId, commentId, content, authorEmail) =>
-  axios.put(`${API_URL}/tickets/${ticketId}/comments/${commentId}`, { content, authorEmail });
+  api.put(`/tickets/${ticketId}/comments/${commentId}`, { content, authorEmail });
 
 // Fix: send email as query param (backend reads @RequestParam email)
 export const deleteComment = (ticketId, commentId, email) =>
-  axios.delete(`${API_URL}/tickets/${ticketId}/comments/${commentId}?email=${encodeURIComponent(email)}`);
+  api.delete(`/tickets/${ticketId}/comments/${commentId}?email=${encodeURIComponent(email)}`);
 
 // Notifications — all require ?email= query param
 export const getMyNotifications = (email) =>
-  axios.get(`${API_URL}/notifications?email=${encodeURIComponent(email)}`);
+  api.get(`/notifications?email=${encodeURIComponent(email)}`);
 
 export const getUnreadCount = (email) =>
-  axios.get(`${API_URL}/notifications/unread-count?email=${encodeURIComponent(email)}`);
+  api.get(`/notifications/unread-count?email=${encodeURIComponent(email)}`);
 
 export const markAsRead = (id) =>
-  axios.put(`${API_URL}/notifications/${id}/read`);
+  api.put(`/notifications/${id}/read`);
 
 export const markAllAsRead = (email) =>
-  axios.put(`${API_URL}/notifications/read-all?email=${encodeURIComponent(email)}`);
+  api.put(`/notifications/read-all?email=${encodeURIComponent(email)}`);
 
 
 
