@@ -15,6 +15,9 @@ import com.smartcampus.model.Booking;
 import com.smartcampus.model.BookingStatus;
 import com.smartcampus.repository.BookingRepository;
 import com.smartcampus.repository.ResourceRepository;
+import com.smartcampus.repository.UserRepository;
+import com.smartcampus.enums.Role;
+import com.smartcampus.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +28,8 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final ResourceRepository resourceRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     /**
      * Create a new booking with conflict prevention
@@ -111,6 +116,13 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
         log.info("Booking created successfully with ID: {}", savedBooking.getId());
+
+        notifyAdmins(
+            "New Booking Request",
+            userName + " created a booking request for " + savedBooking.getResourceName(),
+            NotificationType.BOOKING,
+            savedBooking.getId()
+        );
 
         return toResponse(savedBooking);
     }
@@ -310,5 +322,17 @@ public class BookingService {
             booking.getUpdatedAt(),
             booking.getAdminNotes()
         );
+    }
+
+    private void notifyAdmins(String title, String message, NotificationType type, String relatedEntityId) {
+        List<String> adminIds = userRepository.findByRole(com.smartcampus.enums.Role.ADMIN)
+            .stream()
+            .map(com.smartcampus.model.User::getId)
+            .filter(id -> id != null && !id.isBlank())
+            .toList();
+
+        for (String adminId : adminIds) {
+            notificationService.createNotification(adminId, title, message, type, relatedEntityId);
+        }
     }
 }

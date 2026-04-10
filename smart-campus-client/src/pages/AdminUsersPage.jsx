@@ -281,9 +281,6 @@ export default function AdminUsersPage() {
           </div>
         )}
 
-        <footer className="mt-10 text-center text-xs font-semibold text-slate-400">
-          Smart Campus Admin Panel · User Management
-        </footer>
       </main>
     </div>
   );

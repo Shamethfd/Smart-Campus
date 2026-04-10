@@ -7,9 +7,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.smartcampus.enums.NotificationType;
+import com.smartcampus.enums.Role;
 import com.smartcampus.model.Comment;
 import com.smartcampus.model.Ticket;
 import com.smartcampus.repository.TicketRepository;
+import com.smartcampus.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,13 +21,23 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     public Ticket createTicket(Ticket ticket, String userEmail) {
         ticket.setReportedBy(userEmail);
         ticket.setStatus("OPEN");
         ticket.setCreatedAt(LocalDateTime.now());
         ticket.setUpdatedAt(LocalDateTime.now());
-        return ticketRepository.save(ticket);
+        Ticket saved = ticketRepository.save(ticket);
+
+        notifyAdmins(
+                "New Ticket Submitted",
+                userEmail + " submitted ticket: " + saved.getTitle(),
+                NotificationType.TICKET,
+                saved.getId()
+        );
+
+        return saved;
     }
 
     public List<Ticket> getAllTickets() {
@@ -121,5 +133,17 @@ public class TicketService {
 
     public void deleteTicket(String id) {
         ticketRepository.deleteById(id);
+    }
+
+    private void notifyAdmins(String title, String message, NotificationType type, String relatedEntityId) {
+        List<String> adminIds = userRepository.findByRole(Role.ADMIN)
+                .stream()
+                .map(com.smartcampus.model.User::getId)
+                .filter(id -> id != null && !id.isBlank())
+                .toList();
+
+        for (String adminId : adminIds) {
+            notificationService.createNotification(adminId, title, message, type, relatedEntityId);
+        }
     }
 }

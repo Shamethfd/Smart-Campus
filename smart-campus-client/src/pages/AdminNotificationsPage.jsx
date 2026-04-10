@@ -21,7 +21,7 @@
  * Member 4 – Admin Notifications Page
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Sidebar from '../components/Sidebar';
 import {
   adminGetAllNotifications,
@@ -48,6 +48,7 @@ const SORT_OPTIONS = [
   { value: 'newest', label: '↓ Newest first' },
   { value: 'oldest', label: '↑ Oldest first' },
 ];
+const POLL_INTERVAL_MS = 5000;
 
 /* ── component ────────────────────────────────────────── */
 export default function AdminNotificationsPage() {
@@ -56,22 +57,48 @@ export default function AdminNotificationsPage() {
   const [activeFilter,  setActiveFilter]  = useState('ALL');
   const [sortOrder,     setSortOrder]     = useState('newest');
 
-  /* Fetch on mount */
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
-
-  const fetchNotifications = async () => {
-    setLoading(true);
+  const fetchNotifications = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     try {
       const res = await adminGetAllNotifications();
       if (res.success) setNotifications(res.data);
     } catch {
-      toast.error('Failed to load notifications.');
+      if (!silent) toast.error('Failed to load notifications.');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
-  };
+  }, []);
+
+  /* Initial load */
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  /* Live refresh: polling + tab focus/visibility */
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchNotifications({ silent: true });
+    }, POLL_INTERVAL_MS);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchNotifications({ silent: true });
+      }
+    };
+
+    const handleWindowFocus = () => {
+      fetchNotifications({ silent: true });
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [fetchNotifications]);
 
   /* Mark as read */
   const handleMarkRead = async (id) => {
@@ -146,6 +173,9 @@ export default function AdminNotificationsPage() {
             <Button variant="outline" onClick={fetchNotifications} title="Refresh">
               🔄 Refresh
             </Button>
+            <span className="text-xs font-semibold text-slate-400">
+              Auto refresh: {POLL_INTERVAL_MS / 1000}s
+            </span>
           </div>
         </header>
 
@@ -280,9 +310,6 @@ export default function AdminNotificationsPage() {
           </div>
         )}
 
-        <footer className="mt-10 text-center text-xs font-semibold text-slate-400">
-          Smart Campus Admin Panel · Notification Centre
-        </footer>
       </main>
     </div>
   );
