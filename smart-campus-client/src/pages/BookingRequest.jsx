@@ -31,6 +31,12 @@ function overlaps(aStart, aEnd, bStart, bEnd) {
   return aStart < bEnd && aEnd > bStart;
 }
 
+function getTodayLocalIsoDate() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+}
+
 const STEPS = [
   { num: 1, label: 'Resource type', desc: 'Select the resource type and identifier.' },
   { num: 2, label: 'Date & time', desc: 'Choose the date and your time slot.' },
@@ -39,6 +45,7 @@ const STEPS = [
 
 export default function BookingRequest() {
   const location = useLocation();
+  const minBookingDate = useMemo(() => getTodayLocalIsoDate(), []);
   const requestedResourceId = useMemo(() => {
     const queryResourceId = new URLSearchParams(location.search).get('resourceId');
     return queryResourceId || location.state?.resourceId || sessionStorage.getItem(SELECTED_RESOURCE_KEY) || '';
@@ -148,6 +155,11 @@ export default function BookingRequest() {
     try {
       if (!selectedResource) {
         toast.error('Please select a resource to book.');
+        return;
+      }
+
+      if (formData.bookingDate && formData.bookingDate < minBookingDate) {
+        toast.error('You cannot select a past date for booking.');
         return;
       }
 
@@ -287,6 +299,7 @@ export default function BookingRequest() {
                       type="date"
                       name="bookingDate"
                       value={formData.bookingDate}
+                      min={minBookingDate}
                       onChange={(e) => {
                         handleInputChange(e);
                       }}

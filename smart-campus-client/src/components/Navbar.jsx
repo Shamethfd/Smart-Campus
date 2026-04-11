@@ -52,17 +52,6 @@ export default function Navbar() {
           >
             Dashboard
           </Link>
-          <Link
-            to="/notifications"
-            className={[
-              'rounded-lg px-3 py-2 text-sm font-semibold transition',
-              isActive('/notifications')
-                ? 'bg-slate-900 text-white'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
-            ].join(' ')}
-          >
-            Notifications
-          </Link>
           {isAdmin && (
             <Link
               to="/admin/dashboard"
