@@ -80,6 +80,27 @@ export default function AdminPanel() {
   useEffect(() => { fetchBookings(); }, []);
 
   useEffect(() => {
+    const refreshBookings = () => fetchBookings();
+
+    const handleStorageRefresh = (event) => {
+      if (event.key === 'smartCampus:lastBookingAt') {
+        fetchBookings();
+      }
+    };
+
+    window.addEventListener('smart-campus:booking-created', refreshBookings);
+    window.addEventListener('storage', handleStorageRefresh);
+
+    const intervalId = setInterval(fetchBookings, 10000);
+
+    return () => {
+      window.removeEventListener('smart-campus:booking-created', refreshBookings);
+      window.removeEventListener('storage', handleStorageRefresh);
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  useEffect(() => {
     if (message.text) {
       const t = setTimeout(() => setMessage({ type: '', text: '' }), 4000);
       return () => clearTimeout(t);

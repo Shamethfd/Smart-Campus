@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FiMapPin, FiUsers, FiClock, FiEdit, FiTrash2, FiEye, FiPlus } from 'react-icons/fi';
-import { useState } from 'react';
+import { FiMapPin, FiUsers, FiClock, FiEdit, FiTrash2 } from 'react-icons/fi';
 
 const ResourceCard = ({ resource, onView, onEdit, onDelete, showActions = true, isSelected, onSelect }) => {
   const isAdmin = localStorage.getItem('role') === 'admin';
@@ -43,13 +42,6 @@ const ResourceCard = ({ resource, onView, onEdit, onDelete, showActions = true, 
         <div className="flex space-x-2">
           {showActions && (
             <>
-              <button
-                onClick={() => onView(resource.id)}
-                className="text-blue-600 hover:text-blue-800 transition-colors"
-                title="View Details"
-              >
-                <FiEye className="w-4 h-4" />
-              </button>
               {isAdmin && (
                 <>
                   <button
@@ -116,10 +108,11 @@ const ResourceCard = ({ resource, onView, onEdit, onDelete, showActions = true, 
 
       <div className="mt-4 pt-4 border-t border-gray-200">
         <Link
-          to={`/resource/${resource.id}`}
+          to={`/booking?resourceId=${resource.id}`}
+          state={{ resourceId: resource.id }}
           className="btn-primary w-full text-center block"
         >
-          View Details
+          Book
         </Link>
       </div>
     </div>

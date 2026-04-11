@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FiMapPin, FiUsers, FiClock, FiEdit, FiTrash2, FiDownload, FiCalendar, FiWifi, FiMonitor, FiBook, FiTool } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
@@ -7,6 +7,7 @@ import { API_BASE_URL } from '../lib/apiBase';
 
 const ResourceDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [resource, setResource] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -355,7 +356,12 @@ const ResourceDetail = () => {
           <div className="card">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
             <div className="space-y-2">
-              <button className="btn-primary w-full">
+              <button
+                onClick={() => {
+                  navigate(`/booking?resourceId=${resource.id}`, { state: { resourceId: resource.id } });
+                }}
+                className="btn-primary w-full"
+              >
                 Book Now
               </button>
               <button className="btn-secondary w-full">

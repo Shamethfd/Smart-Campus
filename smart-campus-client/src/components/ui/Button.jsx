@@ -23,6 +23,7 @@ export default function Button({
   className,
   variant = 'primary',
   size = 'md',
+  children,
   ...props
 }) {
   return (
@@ -34,7 +35,9 @@ export default function Button({
         className
       )}
       {...props}
-    />
+    >
+      {children}
+    </Comp>
   );
 }
 

@@ -1,11 +1,24 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 import bookingAPI from '../services/bookingAPI';
 import Button from '../components/ui/Button';
 import Card, { CardBody, CardHeader } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
-import axios from 'axios';
+import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../lib/apiBase';
+import { getToken } from '../utils/tokenUtils';
+
+const SELECTED_RESOURCE_KEY = 'smartCampus:selectedBookingResourceId';
+
+const resourcesApi = axios.create({ baseURL: API_BASE_URL });
+resourcesApi.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 function toMinutes(hhmm) {
   if (!hhmm) return null;
@@ -25,7 +38,11 @@ const STEPS = [
 ];
 
 export default function BookingRequest() {
-  const navigate = useNavigate();
+  const location = useLocation();
+  const requestedResourceId = useMemo(() => {
+    const queryResourceId = new URLSearchParams(location.search).get('resourceId');
+    return queryResourceId || location.state?.resourceId || sessionStorage.getItem(SELECTED_RESOURCE_KEY) || '';
+  }, [location.search, location.state]);
   const [formData, setFormData] = useState({
     resourceId: '',
     bookingDate: '',
@@ -41,26 +58,61 @@ export default function BookingRequest() {
 
   const selectedResource = resources.find((r) => String(r.id) === String(formData.resourceId));
 
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     setLoadingResources(true);
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/resources`, {
+      const res = await resourcesApi.get('/api/resources', {
         params: { page: 0, size: 1000, sortBy: 'name', sortDir: 'asc' },
       });
-      const list = res.data?.content ?? [];
-      setResources(list.filter((r) => r.status === 'WORKING'));
+      const page = res.data?.data ?? res.data;
+      const list = page?.content ?? res.data?.content ?? [];
+      const availableResources = list.filter((r) => r.status === 'WORKING');
+      setResources(availableResources);
+
+      if (requestedResourceId) {
+        const matched = availableResources.find(
+          (resource) => String(resource.id) === String(requestedResourceId)
+        );
+        if (matched) {
+          sessionStorage.setItem(SELECTED_RESOURCE_KEY, String(matched.id));
+          setFormData((prev) => ({ ...prev, resourceId: String(matched.id) }));
+        } else {
+          try {
+            const one = await resourcesApi.get(`/api/resources/${requestedResourceId}`);
+            const r = one.data;
+            if (r?.status === 'WORKING') {
+              setResources((prev) =>
+                prev.some((x) => String(x.id) === String(r.id)) ? prev : [...prev, r]
+              );
+              sessionStorage.setItem(SELECTED_RESOURCE_KEY, String(r.id));
+              setFormData((prev) => ({ ...prev, resourceId: String(r.id) }));
+            } else {
+              toast.error('This resource is not available for booking (not active).');
+            }
+          } catch {
+            toast.error('Could not find the resource from the link. Please choose a resource below.');
+          }
+        }
+      }
+    } catch (err) {
+      const msg =
+        err.response?.status === 401 || err.response?.status === 403
+          ? 'Session expired or not allowed to load resources. Please sign in again.'
+          : 'Failed to load resources. Please try again.';
+      toast.error(msg);
+      setResources([]);
     } finally {
       setLoadingResources(false);
     }
-  };
+  }, [requestedResourceId]);
 
-  const fetchBookingsForDate = async (date) => {
-    if (!date) {
+  const fetchBookingsForSelection = async (date, resourceId) => {
+    if (!date || !resourceId) {
       setBookingsOnDate([]);
       return;
     }
     try {
-      const res = await bookingAPI.getBookingsOnDate(date);
+      const res = await bookingAPI.getResourceBookingsByDate(resourceId, date);
       setBookingsOnDate(res.data?.data ?? []);
     } catch {
       setBookingsOnDate([]);
@@ -69,28 +121,11 @@ export default function BookingRequest() {
 
   useEffect(() => {
     fetchResources();
-  }, []);
+  }, [fetchResources]);
 
-  const isSubmitDisabled = useMemo(() => {
-    if (loading) return true;
-    if (!selectedResource) return true;
-    if (!formData.bookingDate || !formData.startTime || !formData.endTime) return true;
-    const reqStart = toMinutes(formData.startTime);
-    const reqEnd = toMinutes(formData.endTime);
-    if (reqStart == null || reqEnd == null || reqStart >= reqEnd) return true;
-    const outsideHours =
-      reqStart < toMinutes(selectedResource.availableFrom) ||
-      reqEnd > toMinutes(selectedResource.availableTo);
-    if (outsideHours) return true;
-    const conflicts = bookingsOnDate.some((b) => {
-      if (String(b.resourceId) !== String(selectedResource.id)) return false;
-      const bStart = toMinutes(b.startTime);
-      const bEnd = toMinutes(b.endTime);
-      if (bStart == null || bEnd == null) return false;
-      return overlaps(reqStart, reqEnd, bStart, bEnd);
-    });
-    return conflicts;
-  }, [bookingsOnDate, formData.bookingDate, formData.endTime, formData.startTime, loading, selectedResource]);
+  useEffect(() => {
+    fetchBookingsForSelection(formData.bookingDate, formData.resourceId);
+  }, [formData.bookingDate, formData.resourceId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -112,7 +147,7 @@ export default function BookingRequest() {
     setMessage({ type: '', text: '' });
     try {
       if (!selectedResource) {
-        setMessage({ type: 'error', text: 'Please select a resource.' });
+        toast.error('Please select a resource to book.');
         return;
       }
 
@@ -124,15 +159,24 @@ export default function BookingRequest() {
       };
 
       await bookingAPI.createBooking(payload);
+      localStorage.setItem('smartCampus:lastBookingAt', String(Date.now()));
+      window.dispatchEvent(new Event('smart-campus:booking-created'));
+      toast.success('Booking request submitted successfully.');
       setMessage({ type: 'success', text: 'Booking request submitted successfully.' });
-      handleReset();
-      navigate('/dashboard');
+      setFormData((prev) => ({
+        ...prev,
+        bookingDate: '',
+        startTime: '',
+        endTime: '',
+        notes: '',
+      }));
     } catch (error) {
       const data = error.response?.data;
       const text =
         (typeof data?.message === 'string' && data.message) ||
         (data?.error && typeof data.error === 'string' && data.error) ||
         'Failed to create booking request.';
+      toast.error(text);
       setMessage({ type: 'error', text });
     } finally {
       setLoading(false);
@@ -206,37 +250,32 @@ export default function BookingRequest() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <FormField label="Resource" required>
-                <select
-                  name="resourceId"
-                  value={formData.resourceId}
-                  onChange={(e) => {
-                    handleInputChange(e);
-                  }}
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
-                  required
-                  disabled={loadingResources}
-                >
-                  <option value="">
-                    {loadingResources ? 'Loading resources…' : 'Select a resource…'}
-                  </option>
-                  {resources.map((r) => (
-                    <option key={r.id} value={String(r.id)}>
-                      {r.name} · {r.building} · Floor {r.floor}
-                    </option>
-                  ))}
-                </select>
-                {selectedResource ? (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <Badge variant="info">{selectedResource.type}</Badge>
-                    <Badge variant="neutral">{selectedResource.building}</Badge>
-                    <Badge variant="neutral">Cap {selectedResource.capacity}</Badge>
-                    <Badge variant="success">
-                      {selectedResource.availableFrom}–{selectedResource.availableTo}
-                    </Badge>
-                  </div>
-                ) : null}
-              </FormField>
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-widest text-slate-500">
+                  Resource <span className="text-red-500">*</span>
+                </p>
+                <div className="mt-3">
+                  <FormField label="Choose resource" required>
+                    <select
+                      name="resourceId"
+                      value={formData.resourceId}
+                      onChange={handleInputChange}
+                      required
+                      disabled={loadingResources}
+                      className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      <option value="">
+                        {loadingResources ? 'Loading resources…' : 'Select a resource'}
+                      </option>
+                      {resources.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name} · {r.type} · {r.building}
+                        </option>
+                      ))}
+                    </select>
+                  </FormField>
+                </div>
+              </div>
 
               <div>
                 <p className="text-xs font-extrabold uppercase tracking-widest text-slate-500">
@@ -250,7 +289,6 @@ export default function BookingRequest() {
                       value={formData.bookingDate}
                       onChange={(e) => {
                         handleInputChange(e);
-                        fetchBookingsForDate(e.target.value);
                       }}
                       required
                       className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
@@ -335,13 +373,18 @@ export default function BookingRequest() {
                 <Button type="button" variant="outline" onClick={handleReset}>
                   Reset
                 </Button>
-                <Button
+                <button
                   type="submit"
-                  disabled={isSubmitDisabled}
+                  disabled={loading}
+                  className="inline-flex h-11 min-w-40 items-center justify-center rounded-xl border border-blue-700 bg-white px-6 text-sm font-extrabold tracking-wide text-blue-700 shadow-sm transition hover:bg-blue-50 active:bg-blue-100 disabled:pointer-events-none disabled:opacity-70"
                 >
                   {loading ? 'Submitting…' : 'Submit request'}
-                </Button>
+                </button>
               </div>
+
+              <p className="text-xs text-slate-500">
+                The selected resource is checked against existing bookings for the same date and time before submission.
+              </p>
             </form>
           </CardBody>
         </Card>
