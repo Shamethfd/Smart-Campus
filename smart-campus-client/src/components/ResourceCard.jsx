@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import { FiMapPin, FiUsers, FiClock, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { useAuth } from '../hooks/useAuth';
 
 const ResourceCard = ({ resource, onView, onEdit, onDelete, showActions = true, isSelected, onSelect }) => {
-  const isAdmin = localStorage.getItem('role') === 'admin';
+  const { isAdmin: isAdminFromAuth } = useAuth();
+  const legacyAdmin = localStorage.getItem('role') === 'admin';
+  const isAdmin = isAdminFromAuth || legacyAdmin;
 
   const getStatusColor = (status) => {
     switch (status) {

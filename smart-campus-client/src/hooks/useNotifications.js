@@ -23,11 +23,17 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   /** Fetch all notifications and unread count */
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async ({ silent = false } = {}) => {
     if (!isAuthenticated) return;
-    setLoading(true);
+
+    const showLoading = !silent && !hasLoadedOnce;
+    if (showLoading) {
+      setLoading(true);
+    }
+
     try {
       const [notifRes, countRes] = await Promise.all([
         getNotifications(),
@@ -35,18 +41,53 @@ export function useNotifications() {
       ]);
       if (notifRes.success) setNotifications(notifRes.data);
       if (countRes.success) setUnreadCount(countRes.data.count);
+      setHasLoadedOnce(true);
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
-  }, [isAuthenticated]);
+  }, [hasLoadedOnce, isAuthenticated]);
 
-  // Auto-fetch on mount and poll every 30 seconds
+  // Auto-fetch on mount and keep the badge/list fresh with short polling.
   useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    if (!isAuthenticated) {
+      setNotifications([]);
+      setUnreadCount(0);
+      setLoading(false);
+      setHasLoadedOnce(false);
+      return undefined;
+    }
+
+    let active = true;
+
+    const refresh = (options) => {
+      if (!active) return;
+      fetchNotifications(options);
+    };
+
+    refresh();
+
+    // Short interval so booking/ticket notifications feel close to real time without WebSockets.
+    const interval = setInterval(() => refresh({ silent: true }), 5000);
+    const handleFocus = () => refresh({ silent: true });
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refresh({ silent: true });
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fetchNotifications]);
 
   /** Mark a single notification as read */

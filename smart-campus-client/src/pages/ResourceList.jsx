@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiSearch, FiFilter, FiGrid, FiList, FiPlus, FiChevronLeft, FiChevronRight, FiEdit, FiTrash2, FiEye } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 import ResourceCard from '../components/ResourceCard';
 import axios from 'axios';
 import { API_BASE_URL } from '../lib/apiBase';
 import { getToken } from '../utils/tokenUtils';
+import { useAuth } from '../hooks/useAuth';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -20,12 +21,14 @@ api.interceptors.request.use((config) => {
 });
 
 const ResourceList = () => {
+  const navigate = useNavigate();
+  const { isAdmin: isAdminFromAuth } = useAuth();
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grid');
   const [selectedResources, setSelectedResources] = useState(new Set());
   const [showFilters, setShowFilters] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [legacyAdmin, setLegacyAdmin] = useState(false);
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(0);
@@ -47,8 +50,10 @@ const ResourceList = () => {
 
   useEffect(() => {
     const role = localStorage.getItem('role');
-    setIsAdmin(role === 'admin');
+    setLegacyAdmin(role === 'admin');
   }, []);
+
+  const isAdmin = isAdminFromAuth || legacyAdmin;
 
   useEffect(() => {
     fetchResources();
@@ -322,8 +327,8 @@ const ResourceList = () => {
                 <ResourceCard
                   key={resource.id}
                   resource={resource}
-                  onView={(id) => window.location.href = `/resource/${id}`}
-                  onEdit={(id) => window.location.href = `/resource/edit/${id}`}
+                  onView={(id) => navigate(`/resource/${id}`)}
+                  onEdit={(id) => navigate(`/resource/edit/${id}`)}
                   onDelete={handleDelete}
                   isSelected={selectedResources.has(resource.id)}
                   onSelect={handleResourceSelect}

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import bookingAPI from '../services/bookingAPI';
+import { useNotifications } from '../hooks/useNotifications';
 
 const STATUS = {
   PENDING: {
@@ -33,24 +34,48 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
+  const { notifications, unreadCount } = useNotifications();
 
-  useEffect(() => {
-    fetchUserBookings();
-  }, []);
-
-  const fetchUserBookings = async () => {
+  const fetchUserBookings = useCallback(async ({ silent = false } = {}) => {
     try {
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
       const response = await bookingAPI.getUserBookings();
       setBookings(response.data.data || []);
       setError('');
     } catch (err) {
-      setError('Failed to fetch bookings');
+      if (!silent) {
+        setError('Failed to fetch bookings');
+      }
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const refreshBookings = () => {
+      if (!active) return;
+      fetchUserBookings({ silent: true });
+    };
+
+    fetchUserBookings();
+    const intervalId = setInterval(refreshBookings, 10000);
+    window.addEventListener('focus', refreshBookings);
+    document.addEventListener('visibilitychange', refreshBookings);
+
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+      window.removeEventListener('focus', refreshBookings);
+      document.removeEventListener('visibilitychange', refreshBookings);
+    };
+  }, [fetchUserBookings]);
 
   const handleCancelBooking = async (bookingId) => {
     if (window.confirm('Are you sure you want to cancel this booking?')) {
@@ -80,6 +105,8 @@ export default function UserDashboard() {
     approved: bookings.filter((b) => b.status === 'APPROVED').length,
     cancelled: bookings.filter((b) => b.status === 'CANCELLED').length,
   };
+
+  const recentNotifications = notifications.slice(0, 3);
 
   if (loading) {
     return (
@@ -135,6 +162,47 @@ export default function UserDashboard() {
           </div>
         </div>
       </header>
+
+      <section className="rounded-2xl border border-blue-200/80 bg-blue-50/70 p-4 shadow-sm shadow-blue-100">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-blue-700">Live notifications</p>
+            <p className="mt-1 text-sm font-semibold text-slate-700">
+              {unreadCount > 0
+                ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''} right now`
+                : 'No unread notifications at the moment'}
+            </p>
+          </div>
+          <div className="rounded-xl bg-white px-3 py-2 text-sm font-bold text-blue-700 shadow-sm">
+            Auto-refresh enabled
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {recentNotifications.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-blue-200 bg-white/70 px-4 py-5 text-sm text-slate-500 md:col-span-3">
+              No notifications yet. Booking and ticket updates will appear here automatically.
+            </div>
+          ) : (
+            recentNotifications.map((notification) => (
+              <div
+                key={notification.id}
+                className={`rounded-xl border px-4 py-3 shadow-sm ${notification.isRead ? 'border-slate-200 bg-white' : 'border-blue-200 bg-white'}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">{notification.title}</p>
+                    <p className="mt-1 text-xs text-slate-600">{notification.message}</p>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    {notification.type}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
 
       {/* ── Alerts ── */}
       {error && (

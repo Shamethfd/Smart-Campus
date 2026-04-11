@@ -190,6 +190,12 @@ public class BookingService {
         Booking updatedBooking = bookingRepository.save(booking);
         log.info("Booking {} approved successfully", bookingId);
 
+        notifyBookingRequester(
+            booking,
+            "Booking Approved",
+            "Your booking for " + booking.getResourceName() + " has been approved."
+        );
+
         return toResponse(updatedBooking);
     }
 
@@ -213,6 +219,19 @@ public class BookingService {
 
         Booking updatedBooking = bookingRepository.save(booking);
         log.info("Booking {} rejected successfully", bookingId);
+
+        StringBuilder message = new StringBuilder(
+            "Your booking for " + booking.getResourceName() + " has been rejected."
+        );
+        if (adminNotes != null && !adminNotes.isBlank()) {
+            message.append(" Notes: ").append(adminNotes.trim());
+        }
+
+        notifyBookingRequester(
+            booking,
+            "Booking Rejected",
+            message.toString()
+        );
 
         return toResponse(updatedBooking);
     }
@@ -334,5 +353,27 @@ public class BookingService {
         for (String adminId : adminIds) {
             notificationService.createNotification(adminId, title, message, type, relatedEntityId);
         }
+    }
+
+    private void notifyBookingRequester(Booking booking, String title, String message) {
+        if (booking.getUserId() == null || booking.getUserId().isBlank()) {
+            log.warn("Skipping booking notification for {} because userId is missing", booking.getId());
+            return;
+        }
+
+        userRepository.findById(booking.getUserId()).ifPresentOrElse(
+                user -> notificationService.createNotification(
+                        user.getId(),
+                        title,
+                        message,
+                        NotificationType.BOOKING,
+                        booking.getId()
+                ),
+                () -> log.warn(
+                        "Skipping booking notification for {} because user {} was not found",
+                        booking.getId(),
+                        booking.getUserId()
+                )
+        );
     }
 }

@@ -61,10 +61,26 @@ public class TicketService {
         if (reason != null && !reason.isBlank()) ticket.setRejectionReason(reason);
         if (resolutionNotes != null && !resolutionNotes.isBlank()) ticket.setResolutionNotes(resolutionNotes);
         Ticket saved = ticketRepository.save(ticket);
+
+        String normalizedStatus = status == null ? "" : status.trim().toUpperCase();
+        String notificationTitle;
+        String notificationMessage;
+
+        if ("RESOLVED".equals(normalizedStatus) || "CLOSED".equals(normalizedStatus)) {
+            notificationTitle = "Ticket Completed";
+            notificationMessage = "Your ticket '" + ticket.getTitle() + "' has been marked as " + normalizedStatus + ".";
+        } else if ("REJECTED".equals(normalizedStatus)) {
+            notificationTitle = "Ticket Rejected";
+            notificationMessage = "Your ticket '" + ticket.getTitle() + "' was rejected.";
+        } else {
+            notificationTitle = "Ticket Status Updated";
+            notificationMessage = "Your ticket '" + ticket.getTitle() + "' status changed from " + oldStatus + " to " + status;
+        }
+
         notificationService.createNotification(
                 ticket.getReportedBy(),
-            "Ticket Status Updated",
-            "Your ticket '" + ticket.getTitle() + "' status changed from " + oldStatus + " to " + status,
+            notificationTitle,
+            notificationMessage,
             NotificationType.TICKET,
             id
         );

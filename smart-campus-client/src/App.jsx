@@ -38,6 +38,8 @@ import AdminUsersPage from './pages/AdminUsersPage';
 import AdminNotificationsPage from './pages/AdminNotificationsPage';
 import AdminTicketViewPage from './pages/AdminTicketViewPage';
 import ResourceForm from './pages/ResourceForm';
+import AdminEditResourcesPage from './pages/AdminEditResourcesPage';
+import MyPreviousTicketsPage from './pages/MyPreviousTicketsPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import OAuth2RedirectHandler from './components/OAuth2RedirectHandler';
 
@@ -114,6 +116,14 @@ function App() {
               element={<AdminRoute><ResourceForm /></AdminRoute>}
             />
             <Route
+              path="/admin/resources/manage"
+              element={<AdminRoute><AdminEditResourcesPage /></AdminRoute>}
+            />
+            <Route
+              path="/admin/edit-resources"
+              element={<AdminRoute><AdminEditResourcesPage /></AdminRoute>}
+            />
+            <Route
               path="/resource/add"
               element={<AdminRoute><ResourceForm /></AdminRoute>}
             />
@@ -155,6 +165,10 @@ function App() {
             <Route
               path="/tickets"
               element={<ProtectedRoute><TicketPage /></ProtectedRoute>}
+            />
+            <Route
+              path="/my-previous-tickets"
+              element={<ProtectedRoute><MyPreviousTicketsPage /></ProtectedRoute>}
             />
 
             <Route path="/unauthorized" element={<UnauthorizedPage />} />

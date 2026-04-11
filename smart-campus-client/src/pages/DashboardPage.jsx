@@ -11,7 +11,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../lib/apiBase';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { formatDate } from '../utils/dateUtils';
 import Card, { CardBody } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
@@ -20,6 +20,7 @@ const TYPE_ICONS = { BOOKING: '🗓️', TICKET: '🎫', COMMENT: '💬', SYSTEM
 const TYPE_COLORS = { BOOKING: '#6366f1', TICKET: '#f59e0b', COMMENT: '#10b981', SYSTEM: '#64748b' };
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const { notifications, unreadCount } = useNotifications();
   const [defaultResourceId, setDefaultResourceId] = useState(null);
@@ -120,56 +121,75 @@ export default function DashboardPage() {
 
       <section>
         <h2 className="text-lg font-extrabold text-slate-900">Quick Actions</h2>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <Link
-            to="/notifications"
-            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+        <div className="relative z-10 mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+          <button
+            type="button"
+            onClick={() => navigate('/notifications')}
+            className="group rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <div className="text-2xl">🔔</div>
             <div className="mt-3 font-extrabold text-slate-900">My Notifications</div>
             <div className="mt-1 text-sm text-slate-500">View and manage updates</div>
-          </Link>
+          </button>
           {isAdmin && (
-            <Link
-              to="/admin/users"
-              className="group rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            <button
+              type="button"
+              onClick={() => navigate('/admin/users')}
+              className="group rounded-2xl border border-red-200 bg-red-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="text-2xl">👥</div>
               <div className="mt-3 font-extrabold text-slate-900">Manage Users</div>
               <div className="mt-1 text-sm text-slate-600">Roles and access control</div>
-            </Link>
+            </button>
           )}
-          <Link
-            to={defaultResourceId ? `/resource/${defaultResourceId}` : '/resource'}
-            className="group rounded-2xl border border-blue-200 bg-blue-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          <button
+            type="button"
+            onClick={() => navigate(defaultResourceId ? `/resource/${defaultResourceId}` : '/resource')}
+            className="group rounded-2xl border border-blue-200 bg-blue-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <div className="text-2xl">🗓️</div>
             <div className="mt-3 font-extrabold text-slate-900">Booking</div>
             <div className="mt-1 text-sm text-slate-600">Request rooms / labs / equipment</div>
-          </Link>
-          <Link
-            to="/tickets"
-            className="group rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/tickets')}
+            className="group rounded-2xl border border-amber-200 bg-amber-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <div className="text-2xl">🎫</div>
             <div className="mt-3 font-extrabold text-slate-900">Support Tickets</div>
             <div className="mt-1 text-sm text-slate-600">Report incidents and request support</div>
-          </Link>
-          <Link
-            to="/my-bookings"
-            className="group rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/my-bookings')}
+            className="group rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <div className="text-2xl">📋</div>
             <div className="mt-3 font-extrabold text-slate-900">Show my booking</div>
             <div className="mt-1 text-sm text-slate-600">View your submitted booking requests</div>
-          </Link>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/my-previous-tickets')}
+            className="group rounded-2xl border border-violet-200 bg-violet-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <div className="text-2xl">🎟️</div>
+            <div className="mt-3 font-extrabold text-slate-900">Show my previous tickets</div>
+            <div className="mt-1 text-sm text-slate-600">Past support tickets tied to your email</div>
+          </button>
         </div>
       </section>
 
       <section>
-        <div className="flex items-end justify-between gap-4">
-          <h2 className="text-lg font-extrabold text-slate-900">Recent Notifications</h2>
-          <Link to="/notifications" className="text-sm font-bold text-blue-700 hover:underline">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+          <div>
+            <h2 className="text-lg font-extrabold text-slate-900">Recent Notifications</h2>
+            <p className="mt-1 text-xs font-medium text-slate-500">
+              Booking and ticket alerts refresh automatically every few seconds.
+            </p>
+          </div>
+          <Link to="/notifications" className="text-sm font-bold text-blue-700 hover:underline sm:shrink-0">
             See all →
           </Link>
         </div>

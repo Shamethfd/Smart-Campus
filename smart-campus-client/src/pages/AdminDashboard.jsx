@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Sidebar from '../components/Sidebar';
 import {
@@ -22,6 +22,16 @@ const TYPE_CFG = {
 };
 
 const QUICK_ACTIONS = [
+  {
+    id: 'qa-edit-resources',
+    to: '/admin/edit-resources',
+    icon: '🛠️',
+    label: 'Edit resources',
+    desc: 'Browse, update, or remove campus resources',
+    color: '#7c3aed',
+    bg: '#f5f3ff',
+    accent: '#8b5cf6',
+  },
   {
     id: 'qa-users',
     to: '/admin/users',
@@ -82,6 +92,7 @@ const MiniStat = ({ icon, label, value, color, loading }) => (
 
 /* ── main component ─────────────────────────────────────── */
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const [users,         setUsers]         = useState([]);
@@ -186,7 +197,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4">
               {QUICK_ACTIONS.map((action) => {
                 const inner = (
                   <>
@@ -211,14 +222,25 @@ export default function AdminDashboard() {
                   </>
                 );
 
-                const cls = `group relative bg-white rounded-2xl border shadow-sm p-5 transition-all duration-200 ${
+                const cls = `group relative w-full text-left font-inherit bg-white rounded-2xl border shadow-sm p-5 transition-all duration-200 ${
                   action.disabled ? 'opacity-70 cursor-default' : 'hover:-translate-y-1 hover:shadow-md cursor-pointer'
                 }`;
                 const style = { borderColor: `${action.accent}30` };
 
-                return action.disabled
-                  ? <div key={action.id} className={cls} style={style}>{inner}</div>
-                  : <Link key={action.id} to={action.to} className={cls} style={style}>{inner}</Link>;
+                if (action.disabled) {
+                  return <div key={action.id} className={cls} style={style}>{inner}</div>;
+                }
+                return (
+                  <button
+                    key={action.id}
+                    type="button"
+                    className={cls}
+                    style={style}
+                    onClick={() => navigate(action.to)}
+                  >
+                    {inner}
+                  </button>
+                );
               })}
             </div>
           </section>
