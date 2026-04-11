@@ -120,7 +120,7 @@ export default function DashboardPage() {
 
       <section>
         <h2 className="text-lg font-extrabold text-slate-900">Quick Actions</h2>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Link
             to="/notifications"
             className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
@@ -154,6 +154,14 @@ export default function DashboardPage() {
             <div className="text-2xl">🎫</div>
             <div className="mt-3 font-extrabold text-slate-900">Support Tickets</div>
             <div className="mt-1 text-sm text-slate-600">Report incidents and request support</div>
+          </Link>
+          <Link
+            to="/my-bookings"
+            className="group rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <div className="text-2xl">📋</div>
+            <div className="mt-3 font-extrabold text-slate-900">Show my booking</div>
+            <div className="mt-1 text-sm text-slate-600">View your submitted booking requests</div>
           </Link>
         </div>
       </section>
